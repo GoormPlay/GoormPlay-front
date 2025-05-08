@@ -60,6 +60,7 @@ export class ApiClient {
     const response = await fetch(`${this.config.baseURL}${API_ENDPOINTS[endpoint]}`, {
       method: 'GET',
       headers: this.getHeaders(),
+      credentials: 'include',
     });
 
     return this.handleResponse<T>(response);
@@ -70,6 +71,7 @@ export class ApiClient {
       method: 'POST',
       headers: this.getHeaders(),
       body: JSON.stringify(data),
+      credentials: 'include',
     });
 
     return this.handleResponse<T>(response);

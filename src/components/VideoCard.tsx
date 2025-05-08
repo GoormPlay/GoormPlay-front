@@ -18,7 +18,7 @@ const VideoCard: React.FC<VideoCardProps> = ({ video, onClick, rank }) => {
       style={{ aspectRatio: '2/3', minWidth: 180, maxWidth: 220 }}
     >
       <img
-        src={video.thumbnail}
+        src={`https://img.youtube.com/vi/${video.videoId}/sddefault.jpg`}
         alt={video.title}
         className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
       />
