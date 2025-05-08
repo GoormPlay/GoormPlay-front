@@ -3,6 +3,7 @@ import React from 'react';
 interface HeroBannerProps {
   video: {
     title: string;
+    videoId: string;
     thumbnail: string;
   };
   onPlay: () => void;
@@ -11,7 +12,7 @@ interface HeroBannerProps {
 const HeroBanner: React.FC<HeroBannerProps> = ({ video, onPlay }) => (
   <div className="relative w-full h-[60vw] max-h-[600px] min-h-[300px] flex items-end bg-black">
     <img
-      src={video.thumbnail}
+      src={`https://img.youtube.com/vi/${video.videoId}/sddefault.jpg`}
       alt={video.title}
       className="absolute inset-0 w-full h-full object-cover z-0"
       style={{ filter: 'brightness(0.6)' }}
