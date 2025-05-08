@@ -31,6 +31,6 @@ class VideoService {
 
 export const videoService = new VideoService(
   ApiClient.getInstance({
-    baseURL: 'http://localhost:8080',
+    baseURL: process.env.REACT_APP_API_URL || '',
   })
 ); 

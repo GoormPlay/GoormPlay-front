@@ -41,7 +41,7 @@ const VideoDetailModal: React.FC<VideoDetailModalProps> = ({ open, video, onClos
         </div>
         <div className="p-8">
           <h2 className="text-3xl font-extrabold mb-2">{video.title}</h2>
-          <p className="mb-6 text-lg text-gray-200">{video.description}</p>
+          <p className="mb-6 text-lg text-gray-200">{video.synopsis}</p>
           <Button
             variant="contained"
             color="error"

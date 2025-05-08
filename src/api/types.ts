@@ -15,7 +15,7 @@ export interface ApiResponse<T> {
 }
 
 export const API_ENDPOINTS = {
-  VIDEOS: '/api/videos',
+  VIDEOS: '/api/contents/latest-test',
   TRACK_EVENT: '/api/track-event',
 } as const;
 

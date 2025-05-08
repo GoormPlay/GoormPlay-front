@@ -3,7 +3,7 @@ export interface Video {
   title: string;
   videoId: string;
   thumbnail: string;
-  description: string;
+  synopsis: string;
 }
 
 export type VideoEventType = 'play' | 'pause' | 'end' | 'exit' | 'time';
