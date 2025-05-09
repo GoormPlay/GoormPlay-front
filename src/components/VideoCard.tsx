@@ -15,7 +15,7 @@ const VideoCard: React.FC<VideoCardProps> = ({ video, onClick, rank, badge}) => 
     whileHover={{ scale: 1.08, zIndex: 2 }}
     className="relative cursor-pointer group rounded-lg overflow-hidden shadow-lg"
     onClick={() => onClick(video)}
-    style={{ aspectRatio: '2/3', minWidth: 180, maxWidth: 220 }}
+    style={{ aspectRatio: '3/2', minWidth: 180, maxWidth: 220 }}
   >
       <img
         src={`https://img.youtube.com/vi/${video.videoId}/sddefault.jpg`}
