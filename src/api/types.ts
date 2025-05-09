@@ -16,7 +16,7 @@ export interface ApiResponse<T> {
 
 export const API_ENDPOINTS = {
   VIDEOS: '/api/contents/latest-test',
-  TRACK_EVENT: '/api/track-event',
+  TRACK_EVENT: '/api/events/video',
 } as const;
 
 export type ApiEndpoint = keyof typeof API_ENDPOINTS; 

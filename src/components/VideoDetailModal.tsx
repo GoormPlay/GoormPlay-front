@@ -2,7 +2,7 @@ import React, {useState}from 'react';
 import { Modal, Box, Button } from '@mui/material';
 import { Video } from '../types/video';
 import { Review } from '../types/Review';
-
+import { useNavigate } from 'react-router-dom';
 
 interface VideoDetailModalProps {
   open: boolean;
@@ -18,7 +18,7 @@ const dummyReviews: Review[] = [
 
 const VideoDetailModal: React.FC<VideoDetailModalProps> = ({ open, video, onClose }) => {
   const [reviews] = useState<Review[]>(dummyReviews);
-
+  const navigate = useNavigate();
   console.log(open, video, video?.videoId)
   // 조건부 렌더링: video가 없으면 아무것도 렌더링하지 않음
   if (!open || !video || !video.videoId) return null;
@@ -86,7 +86,14 @@ const VideoDetailModal: React.FC<VideoDetailModalProps> = ({ open, video, onClos
               <span className="mx-2">|</span>
               <span>12세</span>
             </div>
-            <button className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg text-xl mb-6">
+            <button 
+            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg text-xl mb-6"
+            onClick={() => {
+              if(video && video.videoId){
+              navigate(`/watch/${video.videoId}`)
+            }
+          }}
+            >
               재생하기
             </button>
             {/* 비슷한 영화 슬라이더 (임시) */}
