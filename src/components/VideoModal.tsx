@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Video, VideoEvent, VideoEventType } from '../types/video';
-import { videoService } from '../api/services/videoService';
+import { videoService } from '../api/services/VideoService';
 
 interface VideoModalProps {
   video: Video | null;
