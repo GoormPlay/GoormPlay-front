@@ -10,6 +10,8 @@ const dummyProfile: UserProfile = {
     subscription: 'SUBSCRIBED',
     liked: [{
         "id": "1",
+        "kind": "MOVIE",
+        "genre": ["SF", "액션", "드라마"],
         "thumbnail": "https://www.youtube.com/embed/YoHD9XEInc0",
         "title": "인셉션",
         "videoId": "YoHD9XEInc0",

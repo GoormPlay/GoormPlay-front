@@ -1,5 +1,7 @@
 export interface Video {
   id: string;
+  kind: string;
+  genre: string[];
   title: string;
   videoId: string;
   thumbnail: string;

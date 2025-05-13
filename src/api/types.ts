@@ -18,6 +18,8 @@ export interface ApiResponse<T> {
 // 비디오 관련
 export interface Video {
   id: string;
+  kind: string;
+  genre: string[];
   title: string;
   videoId: string;
   thumbnail: string;
@@ -29,6 +31,8 @@ export interface Video {
 // 비디오 관련
 export interface VideoCard {
   id: string;
+  kind: string;
+  genre: string[];
   title: string;
   videoId: string;
   thumbnail: string;

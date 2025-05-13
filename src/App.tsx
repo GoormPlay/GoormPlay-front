@@ -16,6 +16,51 @@ import AdSidebar from './components/AdSidebar';
 import AdBudgetPage from './pages/AdBudgetPage';
 import BannerContentPage from './pages/BannerContentPage'; 
 
+const FLOATING_ROUTES = [
+  { name: '메인', path: '/' },
+  { name: '프로필', path: '/profile' },
+  { name: '구독', path: '/subscription' },
+  { name: '광고관리', path: '/ad-management' },
+];
+
+function FloatingMenu() {
+  const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="fixed right-8 bottom-8 z-50 flex flex-col items-end gap-3">
+      {/* TOP 버튼 */}
+      <button
+        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        className="mb-2 w-12 h-12 flex items-center justify-center rounded-full bg-gray-800 text-white shadow-lg hover:bg-blue-600 transition text-2xl"
+        title="맨 위로"
+      >
+        ▲
+      </button>
+      {/* 플로팅 메뉴 */}
+      {open && (
+        <div className="mb-2 bg-[#232323] rounded-lg shadow-lg p-2 flex flex-col gap-2 animate-fade-in">
+          {FLOATING_ROUTES.map(route => (
+            <button
+              key={route.path}
+              onClick={() => { navigate(route.path); setOpen(false); }}
+              className="px-4 py-2 text-white text-sm rounded hover:bg-blue-600 text-left"
+            >
+              {route.name}
+            </button>
+          ))}
+        </div>
+      )}
+      <button
+        onClick={() => setOpen(v => !v)}
+        className="w-14 h-14 flex items-center justify-center rounded-full bg-blue-600 text-white shadow-xl text-3xl hover:bg-blue-700 transition"
+        title="빠른 이동"
+      >
+        ≡
+      </button>
+    </div>
+  );
+}
+
 function MainPage({ videos, setSelectedVideo }: { videos: Video[], setSelectedVideo: (v: Video) => void }) {
   const [trending, setTrending] = useState<Video[]>([]);
   const [latest, setLatest] = useState<Video[]>([]);
@@ -106,6 +151,7 @@ function App() {
         <Route path="/ad-budget" element={<AdLayout><AdBudgetPage /></AdLayout>} />
         <Route path="/banner-content" element={<AdLayout><BannerContentPage /></AdLayout>} />
       </Routes>
+      <FloatingMenu />
     </div>
   );
 }
