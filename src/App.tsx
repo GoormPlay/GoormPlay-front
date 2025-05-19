@@ -14,7 +14,8 @@ import SubscriptionPage from './components/SubscriptionPage';
 import AdManagementPage from './components/AdManagementPage';
 import AdSidebar from './components/AdSidebar';
 import AdBudgetPage from './pages/AdBudgetPage';
-import BannerContentPage from './pages/BannerContentPage'; 
+import BannerContentPage from './pages/BannerContentPage';
+import AdCreatePage from './components/AdCreatePage';
 
 const FLOATING_ROUTES = [
   { name: '메인', path: '/' },
@@ -150,6 +151,7 @@ function App() {
         <Route path="/ad-management" element={<AdLayout><AdManagementPage /></AdLayout>} />
         <Route path="/ad-budget" element={<AdLayout><AdBudgetPage /></AdLayout>} />
         <Route path="/banner-content" element={<AdLayout><BannerContentPage /></AdLayout>} />
+        <Route path="/ad-create" element={<AdCreatePage />} />
       </Routes>
       <FloatingMenu />
     </div>

@@ -80,17 +80,30 @@ export interface Ad {
     balance: number;
 }
 
+// 광고 예산 관련
+export interface RechargeRequestDTO {
+  advertiserId: string;
+  amount: number;
+}
+
+export interface AdvertiserAccountDTO {
+  advertiserId: string;
+  totalBudget: number;
+  currentBalance: number;
+  createdAt: string;
+}
+
 export const API_ENDPOINTS = {
   VIDEOS: {
-    path: '/api/contents/latest',
+    path: '/api/public/contents/latest',
     service: 'content' as const,
   },
   TRENDING: {
-    path: '/api/contents/trending',
+    path: '/api/public/contents/trending',
     service: 'content' as const,
   },
   LATEST: {
-    path: '/api/contents/latest-test',
+    path: '/api/public/contents/latest-test',
     service: 'content' as const,
   },
   RECOMMEND: {
@@ -98,15 +111,15 @@ export const API_ENDPOINTS = {
     service: 'content' as const,
   },
   VIDEO_DETAIL: {
-    path: '/api/contents', // /:id
+    path: '/api/public/contents', // /:id
     service: 'content' as const,
   },
   TRACK_EVENT: {
-    path: '/api/events/video',
+    path: '/api/public/events/video',
     service: 'videoEvent' as const,
   },
   LOGIN: {
-    path: '/api/auth/login',
+    path: '/api/auth/signin',
     service: 'user' as const,
   },
   SIGNUP: {
@@ -114,7 +127,7 @@ export const API_ENDPOINTS = {
     service: 'user' as const,
   },
   PROFILE: {
-    path:'/api/member/profile',
+    path: '/api/member/profile',
     service: 'user' as const,
   },
   HISTORY: {
@@ -126,11 +139,23 @@ export const API_ENDPOINTS = {
     service: 'user' as const,
   },
   SUBSCRIPTION: {
-    path: '/api/subscription',
+    path: '/api/subscribe',
     service: 'subscription' as const,
   },
   ADS: {
     path: '/api/ads',
+    service: 'ad' as const,
+  },
+  CREATE_AD: {
+    path: '/api/ads/new',
+    service: 'ad' as const,
+  },
+  AD_RECHARGE: {
+    path: '/api/ads/recharge',
+    service: 'ad' as const,
+  },
+  AD_BALANCE: {
+    path: '/api/ads/balance',
     service: 'ad' as const,
   },
 } as const;

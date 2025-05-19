@@ -1,24 +1,56 @@
-import { ApiConfig, ApiError, ApiResponse, ApiEndpoint, API_ENDPOINTS } from './types';
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import { ApiError, ApiResponse, ApiEndpoint, API_ENDPOINTS } from './types';
 
-const SERVICE_BASE_URLS: Record<string, string> = {
-  content: process.env.REACT_APP_CONTENT_API_URL || '',
-  videoEvent: process.env.REACT_APP_VIDEO_EVENT_API_URL || '',
-  user: process.env.REACT_APP_USER_API_URL || '',
-  // ...필요시 추가
-};
+// API Gateway URL을 기본 URL로 설정
+const GATEWAY_URL = process.env.REACT_APP_API_GATEWAY_URL || 'http://localhost:8080';
 
 export class ApiClient {
   private static instance: ApiClient;
-  private config: ApiConfig;
+  private axiosInstance: AxiosInstance;
   private authToken: string | null = null;
 
-  private constructor(config: ApiConfig) {
-    this.config = config;
+  private constructor() {
+    this.axiosInstance = axios.create({
+      baseURL: GATEWAY_URL,
+      withCredentials: true,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+    });
+
+    // 요청 인터셉터
+    this.axiosInstance.interceptors.request.use(
+      (config) => {
+        if (this.authToken) {
+          config.headers.Authorization = `Bearer ${this.authToken}`;
+        }
+        return config;
+      },
+      (error) => {
+        console.error('Request Error:', error);
+        return Promise.reject(error);
+      }
+    );
+
+    // 응답 인터셉터
+    this.axiosInstance.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        console.error('Response Error:', error);
+        const apiError: ApiError = {
+          message: error.response?.data?.message || error.response?.statusText || '알 수 없는 오류가 발생했습니다.',
+          status: error.response?.status || 500,
+          data: error.response?.data,
+        };
+        return Promise.reject(apiError);
+      }
+    );
   }
 
-  public static getInstance(config: ApiConfig): ApiClient {
+  public static getInstance(): ApiClient {
     if (!ApiClient.instance) {
-      ApiClient.instance = new ApiClient(config);
+      ApiClient.instance = new ApiClient();
     }
     return ApiClient.instance;
   }
@@ -27,78 +59,39 @@ export class ApiClient {
     this.authToken = token;
   }
 
-  private getBaseURL(endpoint: ApiEndpoint): string {
-    const service = API_ENDPOINTS[endpoint].service;
-    // 1. config의 serviceBaseURLs에서 찾기
-    if (this.config.serviceBaseURLs?.[service]) {
-      return this.config.serviceBaseURLs[service];
-    }
-    // 2. 글로벌 SERVICE_BASE_URLS에서 찾기
-    if (SERVICE_BASE_URLS[service]) {
-      return SERVICE_BASE_URLS[service];
-    }
-    // 3. 기본 baseURL 사용
-    return this.config.baseURL;
-  }
-
-  private getHeaders(): HeadersInit {
-    const headers: HeadersInit = {
-      'Content-Type': 'application/json',
-      ...this.config.headers,
-    };
-
-    if (this.authToken) {
-      headers['Authorization'] = `Bearer ${this.authToken}`;
-    }
-
-    return headers;
-  }
-
-  private async handleResponse<T>(response: Response): Promise<ApiResponse<T>> {
-    if (!response.ok) {
-      const error: ApiError = {
-        message: response.statusText,
-        status: response.status,
-      };
-
-      try {
-        error.data = await response.json();
-      } catch {
-        // JSON 파싱 실패 시 무시
-      }
-
-      throw error;
-    }
-
-    const data = await response.json();
+  private handleResponse<T>(response: AxiosResponse): ApiResponse<T> {
     return {
-      data,
+      data: response.data,
       status: response.status,
     };
   }
 
-  public async get<T>(endpoint: ApiEndpoint, pathParam?: string): Promise<ApiResponse<T>> {
-    const baseURL = this.getBaseURL(endpoint);
-    const url = pathParam
-      ? `${baseURL}${API_ENDPOINTS[endpoint].path}/${pathParam}`
-      : `${baseURL}${API_ENDPOINTS[endpoint].path}`;
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: this.getHeaders(),
-      credentials: 'include',
-    });
+  public async get<T>(endpoint: ApiEndpoint, params?: Record<string, string>): Promise<ApiResponse<T>> {
+    const response = await this.axiosInstance.get<T>(
+      API_ENDPOINTS[endpoint].path,
+      { params }
+    );
     return this.handleResponse<T>(response);
   }
 
   public async post<T>(endpoint: ApiEndpoint, data: unknown): Promise<ApiResponse<T>> {
-    const baseURL = this.getBaseURL(endpoint);
-    const url = `${baseURL}${API_ENDPOINTS[endpoint].path}`;
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: this.getHeaders(),
-      body: JSON.stringify(data),
-      credentials: 'include',
-    });
+    const response = await this.axiosInstance.post<T>(
+      API_ENDPOINTS[endpoint].path,
+      data
+    );
+    return this.handleResponse<T>(response);
+  }
+
+  public async postMultipart<T>(endpoint: ApiEndpoint, formData: FormData): Promise<ApiResponse<T>> {
+    const response = await this.axiosInstance.post<T>(
+      API_ENDPOINTS[endpoint].path,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
     return this.handleResponse<T>(response);
   }
 } 

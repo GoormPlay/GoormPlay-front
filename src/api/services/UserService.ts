@@ -25,11 +25,4 @@ class UserService {
       }
 }
 
-export const userService = new UserService(
-    ApiClient.getInstance({
-        baseURL: process.env.REACT_APP_API_URL || '',
-        serviceBaseURLs: {
-          user: process.env.REACT_APP_USER_API_URL || '',
-        },
-    })
-  );
+export const userService = new UserService(ApiClient.getInstance());

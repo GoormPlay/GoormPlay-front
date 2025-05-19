@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { videoService } from '../api/services/VideoService';
 import { VideoEventType } from '../types/video';
-const API_ENDPOINT = '/api/events/video'; // 실제 API 엔드포인트로 교체
+
 
 const WatchPage: React.FC = () => {
     const { videoId } = useParams<{ videoId: string }>();

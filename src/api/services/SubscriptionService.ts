@@ -16,11 +16,4 @@ class SubscriptionService {
       }
 }
 
-export const subscriptionService = new SubscriptionService(
-    ApiClient.getInstance({
-        baseURL: process.env.REACT_APP_API_URL || '',
-        serviceBaseURLs: {
-          SUBSCRIPTION: process.env.REACT_APP_SUBSCRIPTION_API_URL || '',
-        },
-    })
-  );
+export const subscriptionService = new SubscriptionService(ApiClient.getInstance());

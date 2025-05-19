@@ -5,6 +5,7 @@ const menus = [
   { name: '광고관리', path: '/ad-management' },
   { name: '광고비', path: '/ad-budget' },
   { name: '배너 컨텐츠', path: '/banner-content' },
+  { name: '광고 등록', path: '/ad-create' },
 ];
 
 const AdSidebar: React.FC = () => {

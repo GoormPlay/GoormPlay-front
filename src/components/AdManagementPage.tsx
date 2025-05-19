@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { adService } from "../api/services/AdService";
+import { useNavigate } from "react-router-dom";
 import { Ad } from "../api/types";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, LabelList } from 'recharts';
 
@@ -164,6 +165,7 @@ const AdManagementPage: React.FC = () => {
     const [adOn, setAdOn] = useState(true);
     const [selectedAdSnId, setSelectedAdSnId] = useState<string>('AD001');
     const [selectedType, setSelectedType] = useState<'전체'|'A'|'B'>('전체');
+    const navigate = useNavigate();
 
     useEffect(() => {
         adService.getAds()
@@ -194,7 +196,9 @@ const AdManagementPage: React.FC = () => {
             <AdCompareChart ads={filteredAds} />
             <div className="bg-[#181818] p-8 rounded-lg">
                 <h2 className="text-2xl font-bold mb-4 text-white">광고 관리</h2>
-                <button className="bg-blue-600 text-white px-4 py-2 rounded mb-4 hover:bg-blue-700">
+                <button 
+                onClick={() => navigate('/ad-create')}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
                     광고 등록
                 </button>
                 <div className="overflow-x-auto">

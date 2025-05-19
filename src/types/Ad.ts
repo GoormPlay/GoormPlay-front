@@ -10,3 +10,15 @@ export interface Ad {
     cpc: number;
     balance: number;
 }
+// 광고 예산 관련
+export interface RechargeRequestDTO {
+    advertiserId: string;
+    amount: number;
+  }
+  
+  export interface AdvertiserAccountDTO {
+    advertiserId: string;
+    totalBudget: number;
+    currentBalance: number;
+    createdAt: string;
+  }
