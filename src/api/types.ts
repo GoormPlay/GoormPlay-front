@@ -1,9 +1,22 @@
+import { AxiosRequestConfig, InternalAxiosRequestConfig } from 'axios';
 export interface ApiConfig {
   baseURL: string;
   serviceBaseURLs?: Record<string, string>;
   headers?: Record<string, string>;
 }
 
+export interface EndpointConfig {
+  path: string;
+  isPublic?: boolean;
+}
+
+// AxiosRequestConfig 확장
+export interface CustomRequestConfig extends AxiosRequestConfig {
+  endpointKey?: keyof typeof API_ENDPOINTS;
+}
+export interface CustomInternalRequestConfig extends InternalAxiosRequestConfig {
+  endpointKey?: keyof typeof API_ENDPOINTS;
+}
 export interface ApiError {
   message: string;
   status: number;
@@ -95,67 +108,83 @@ export interface AdvertiserAccountDTO {
 
 export const API_ENDPOINTS = {
   VIDEOS: {
-    path: '/api/public/contents/latest',
+    path: '/contents/latest',
+    isPublic: true,
     service: 'content' as const,
   },
   TRENDING: {
-    path: '/api/public/contents/trending',
+    path: '/contents/trending',
+    isPublic: true,
     service: 'content' as const,
   },
   LATEST: {
-    path: '/api/public/contents/latest-test',
+    path: '/contents/latest-test',
+    isPublic: true,
     service: 'content' as const,
   },
   RECOMMEND: {
-    path: '/api/contents/recommend',
+    path: '/contents/recommend',
+    isPublic: false,
     service: 'content' as const,
   },
   VIDEO_DETAIL: {
-    path: '/api/public/contents', // /:id
+    path: '/contents', // /:id
+    isPublic: true,
     service: 'content' as const,
   },
   TRACK_EVENT: {
-    path: '/api/public/events/video',
+    path: '/events/video',
+    isPublic: true,
     service: 'videoEvent' as const,
   },
   LOGIN: {
-    path: '/api/auth/signin',
+    path: '/auth/signin',
+    isPublic: false,
     service: 'user' as const,
   },
   SIGNUP: {
-    path: '/api/auth/signup',
+    path: '/auth/signup',
+    isPublic: false,
     service: 'user' as const,
   },
   PROFILE: {
-    path: '/api/member/profile',
+    path: '/member/profile',
+    isPublic: false,
     service: 'user' as const,
   },
   HISTORY: {
-    path: '/api/member/history',
+    path: '/member/history',
+    isPublic: false,
     service: 'user' as const,
   },
   LIKES: {
-    path: '/api/member/likes',
+    path: '/member/likes',
+    isPublic: false,
     service: 'user' as const,
   },
   SUBSCRIPTION: {
-    path: '/api/subscribe',
+    path: '/subscribe',
+    isPublic: false,
     service: 'subscription' as const,
   },
   ADS: {
-    path: '/api/ads',
+    path: '/ads',
+    isPublic: true,
     service: 'ad' as const,
   },
   CREATE_AD: {
-    path: '/api/ads/new',
+    path: '/ads/new',
+    isPublic: true,
     service: 'ad' as const,
   },
   AD_RECHARGE: {
-    path: '/api/ads/recharge',
+    path: '/ads/recharge',
+    isPublic: true,
     service: 'ad' as const,
   },
   AD_BALANCE: {
-    path: '/api/ads/balance',
+    path: '/ads/balance',
+    isPublic: true,
     service: 'ad' as const,
   },
 } as const;
