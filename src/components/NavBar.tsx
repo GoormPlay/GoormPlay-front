@@ -1,21 +1,41 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { userService } from '../api/services/UserService';
-import { User } from '../api/types';
+import { MemberProfileDto } from '../api/types';
+
+const defaultProfile: MemberProfileDto = {
+  id: '1',
+  username: 'test',
+  gender: 'MALE',
+  age: 20,
+  subscription_start_date: undefined,
+  subscription_end_date: undefined,
+  isCancelScheduled: false,
+  isSubscribed: false,
+  liked: []
+};
 
 const NavBar = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<MemberProfileDto | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('accessToken');
     if (token) {
       userService.getProfile()
-        .then(response => setUser(response.data))
+        .then(response => {
+          if (response.data) {
+            // 백엔드에서 받은 데이터가 있으면 그대로 사용
+            setUser(response.data);
+          } else {
+            // 백엔드에서 데이터가 없으면 defaultProfile 사용
+            setUser(defaultProfile);
+          }
+        })
         .catch(() => {
-          localStorage.removeItem('token');
-          setUser(null);
+          // 에러 발생 시 defaultProfile 사용
+          setUser(defaultProfile);
         })
         .finally(() => setIsLoading(false));
     } else {
@@ -24,7 +44,7 @@ const NavBar = () => {
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
+    localStorage.removeItem('accessToken');
     setUser(null);
     navigate('/');
   };

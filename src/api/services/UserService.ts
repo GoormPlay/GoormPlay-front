@@ -1,5 +1,5 @@
 import { ApiClient } from "../ApiClient";
-import { User } from "../../types/User";
+import { User, SignUpRequestDto, SignInRequestDto, MemberProfileDto } from "../types";
 
 class UserService {
     private apiClient: ApiClient;
@@ -8,21 +8,35 @@ class UserService {
         this.apiClient = apiClient;
     }
 
-    async login(username: string, password: string) {
-        return this.apiClient.post<{ token: string }>('LOGIN', { username, password });
+    async signIn(data: SignInRequestDto) {
+      const response = await this.apiClient.post<{ message: string; data: string }>('SIGNIN', data);
+      if (response.data.data) {
+          localStorage.setItem('accessToken', response.data.data);
+          this.apiClient.setAuthToken(response.data.data);
       }
-      async signup(username: string, password: string) {
-        return this.apiClient.post('SIGNUP', { username, password });
-      }
-      async getProfile() {
-        return this.apiClient.get<User>('PROFILE');
-      }
-      async getHistory() {
+        return response;
+    }
+
+    async signUp(data: SignUpRequestDto) {
+        return this.apiClient.post<string>('SIGNUP', data);
+    }
+
+    async getProfile() {
+        return this.apiClient.get<MemberProfileDto>('PROFILE');
+    }
+
+    async getHistory() {
         return this.apiClient.get('HISTORY');
-      }
-      async getLikes() {
+    }
+
+    async getLikes() {
         return this.apiClient.get('LIKES');
-      }
+    }
+
+    logout() {
+        localStorage.removeItem('accessToken');
+        this.apiClient.setAuthToken(null);
+    }
 }
 
 export const userService = new UserService(ApiClient.getInstance());

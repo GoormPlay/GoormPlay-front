@@ -6,6 +6,9 @@ export interface Video {
   videoId: string;
   thumbnail: string;
   synopsis: string;
+  trending?: boolean;
+  latest?: boolean;
+  personalized?: boolean;
 }
 
 export type VideoEventType = 'play' | 'pause' | 'end' | 'exit' | 'time';

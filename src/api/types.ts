@@ -66,10 +66,9 @@ export interface VideoEvent {
 // 유저 관련
 export interface User {
   id: string;
-    username: string;
-    password: string;
-    subscription: string;
-    liked: Video[];
+  username: string;
+  subscription: string;
+  liked: Video[];
 }
 
 export interface UserProfile {
@@ -106,86 +105,128 @@ export interface AdvertiserAccountDTO {
   createdAt: string;
 }
 
+// 인증 관련
+export interface SignUpRequestDto {
+  username: string;
+  password: string;
+  gender: 'MALE' | 'FEMALE';
+  age: number;
+}
+
+export interface SignInRequestDto {
+  username: string;
+  password: string;
+}
+
+export interface MemberProfileDto {
+  id: string;
+  username: string;
+  gender: 'MALE' | 'FEMALE';
+  age: number;
+  subscription_start_date?: string;
+  subscription_end_date?: string;
+  isCancelScheduled?: boolean;
+  isSubscribed?: boolean;
+  liked?: Video[];
+}
+
 export const API_ENDPOINTS = {
   VIDEOS: {
     path: '/contents/latest',
     isPublic: true,
+    isAuth: false,
     service: 'content' as const,
   },
   TRENDING: {
     path: '/contents/trending',
     isPublic: true,
+    isAuth: false,
     service: 'content' as const,
   },
   LATEST: {
     path: '/contents/latest-test',
     isPublic: true,
+    isAuth: false,
     service: 'content' as const,
   },
   RECOMMEND: {
     path: '/contents/recommend',
     isPublic: false,
+    isAuth: false,
     service: 'content' as const,
   },
   VIDEO_DETAIL: {
     path: '/contents', // /:id
     isPublic: true,
+    isAuth: false,
     service: 'content' as const,
   },
   TRACK_EVENT: {
     path: '/events/video',
     isPublic: true,
+    isAuth: false,
     service: 'videoEvent' as const,
   },
-  LOGIN: {
-    path: '/auth/signin',
-    isPublic: false,
-    service: 'user' as const,
-  },
-  SIGNUP: {
-    path: '/auth/signup',
-    isPublic: false,
-    service: 'user' as const,
-  },
-  PROFILE: {
-    path: '/member/profile',
-    isPublic: false,
-    service: 'user' as const,
-  },
+
   HISTORY: {
     path: '/member/history',
     isPublic: false,
+    isAuth: false,
     service: 'user' as const,
   },
   LIKES: {
     path: '/member/likes',
     isPublic: false,
+    isAuth: false,
     service: 'user' as const,
   },
   SUBSCRIPTION: {
     path: '/subscribe',
     isPublic: false,
+    isAuth: false,
     service: 'subscription' as const,
   },
   ADS: {
-    path: '/ads',
+    path: '/ads/list',
     isPublic: true,
+    isAuth: false,
     service: 'ad' as const,
   },
   CREATE_AD: {
     path: '/ads/new',
     isPublic: true,
+    isAuth: false,
     service: 'ad' as const,
   },
   AD_RECHARGE: {
     path: '/ads/recharge',
     isPublic: true,
+    isAuth: false,
     service: 'ad' as const,
   },
   AD_BALANCE: {
     path: '/ads/balance',
     isPublic: true,
+    isAuth: false,
     service: 'ad' as const,
+  },
+  SIGNIN: {
+    path: '/auth/signin',
+    isPublic: false,
+    isAuth: true,
+    service: 'auth' as const,
+  },
+  SIGNUP: {
+    path: '/auth/signup',
+    isPublic: false,
+    isAuth: true,
+    service: 'auth' as const,
+  },
+  PROFILE: {
+    path: '/member/profile',
+    isPublic: false,
+    isAuth: false,
+    service: 'member' as const,
   },
 } as const;
 

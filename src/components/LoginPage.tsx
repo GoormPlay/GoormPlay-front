@@ -1,27 +1,49 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { userService } from '../api/services/UserService';
+import { SignInRequestDto } from '../api/types';
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
-  const [username, setUsername] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
+  const [formData, setFormData] = useState<SignInRequestDto>({
+    username: '',
+    password: ''
+  });
   const [remember, setRemember] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await userService.login(username, password);
-      if (response.data.token) {
-        // 토큰 저장
-        localStorage.setItem('token', response.data.token);
-        // 홈으로 이동
+      const response = await userService.signIn(formData);
+      if (response.data.data) {
+        if (remember) {
+          localStorage.setItem('rememberMe', 'true');
+        }
         navigate('/');
       }
     } catch (err) {
       setError('로그인에 실패했습니다. 아이디와 비밀번호를 확인해주세요.');
     }
+  };
+
+  const handleTestLogin = async (username: string, password: string) => {
+    try {
+      const response = await userService.signIn({ username, password });
+      if (response.data.data) {
+        navigate('/');
+      }
+    } catch (err) {
+      setError('로그인에 실패했습니다.');
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   return (
@@ -40,9 +62,10 @@ const LoginPage: React.FC = () => {
             </label>
             <input
               id="username"
+              name="username"
               type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              value={formData.username}
+              onChange={handleChange}
               className="w-full p-3 rounded bg-[#222] text-white border border-[#333] focus:border-blue-500 focus:outline-none"
               required
             />
@@ -53,9 +76,10 @@ const LoginPage: React.FC = () => {
             </label>
             <input
               id="password"
+              name="password"
               type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={formData.password}
+              onChange={handleChange}
               className="w-full p-3 rounded bg-[#222] text-white border border-[#333] focus:border-blue-500 focus:outline-none"
               required
             />
@@ -73,11 +97,25 @@ const LoginPage: React.FC = () => {
           </div>
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-3 rounded font-bold hover:bg-blue-700 transition"
+            className="w-full bg-blue-600 text-white py-3 rounded font-bold hover:bg-blue-700 transition mb-4"
           >
             로그인
           </button>
         </form>
+        <div className="space-y-3">
+          <button
+            onClick={() => handleTestLogin('test', '1234')}
+            className="w-full bg-gray-600 text-white py-3 rounded font-bold hover:bg-gray-700 transition"
+          >
+            테스트 계정으로 로그인 (test/1234)
+          </button>
+          <button
+            onClick={() => handleTestLogin('admin', '1234')}
+            className="w-full bg-gray-600 text-white py-3 rounded font-bold hover:bg-gray-700 transition"
+          >
+            관리자 계정으로 로그인 (admin/1234)
+          </button>
+        </div>
         <div className="mt-4 text-center">
           <button
             onClick={() => navigate('/signup')}

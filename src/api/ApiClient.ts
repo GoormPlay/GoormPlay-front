@@ -1,5 +1,15 @@
 import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse } from 'axios';
-import { ApiError, ApiResponse, ApiEndpoint, API_ENDPOINTS, CustomRequestConfig, CustomInternalRequestConfig } from './types';
+import { 
+  ApiError, 
+  ApiResponse, 
+  ApiEndpoint, 
+  API_ENDPOINTS, 
+  CustomRequestConfig, 
+  CustomInternalRequestConfig,
+  SignUpRequestDto,
+  SignInRequestDto,
+  MemberProfileDto
+} from './types';
 
 // API Gateway URL을 기본 URL로 설정
 const GATEWAY_URL = process.env.REACT_APP_API_GATEWAY_URL || 'http://localhost:8080';
@@ -36,7 +46,7 @@ export class ApiClient {
           
 
            console.log('Final Request URL:', customConfig.url);  // 실제 요청 URL 확인
-          if (!endpoint.isPublic) {
+          if (!endpoint.isPublic && !endpoint.isAuth) {
             const token = localStorage.getItem('accessToken');
             if (token) {
               customConfig.headers.Authorization = `Bearer ${token}`;
@@ -57,6 +67,13 @@ export class ApiClient {
           status: error.response?.status || 500,
           data: error.response?.data,
         };
+
+        // 401 에러가 아닌 경우에만 토큰 제거
+        if (error.response?.status !== 401) {
+          localStorage.removeItem('accessToken');
+          this.setAuthToken(null);
+        }
+
         return Promise.reject(apiError);
       }
     );
@@ -111,4 +128,5 @@ export class ApiClient {
       },
     });
   }
+
 } 

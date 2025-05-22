@@ -9,13 +9,14 @@ class AdService {
     constructor(apiClient: ApiClient) {
         this.apiClient = apiClient;
     }
-    
+
     async getAds() {
-        // URL에 쿼리 파라미터로 advertiserId 추가
+
         return this.apiClient.get<Ad[]>('ADS', { advertiserId: this.FIXED_ADVERTISER_ID });
     }
 
     async createAd(formData: FormData) {
+
         return this.apiClient.postMultipart<Ad>('CREATE_AD', formData);
     }
 

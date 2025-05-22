@@ -1,28 +1,46 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { userService } from '../api/services/UserService';
+import { SignUpRequestDto } from '../api/types';
 
 const SignupPage: React.FC = () => {
   const navigate = useNavigate();
-  const [username, setUsername] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
+  const [formData, setFormData] = useState<SignUpRequestDto>({
+    username: '',
+    password: '',
+    gender: 'MALE',
+    age: 0
+  });
   const [confirmPassword, setConfirmPassword] = useState<string>('');
   const [error, setError] = useState<string>('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (password !== confirmPassword) {
+    if (formData.password !== confirmPassword) {
       setError('비밀번호가 일치하지 않습니다.');
       return;
     }
 
+    if (formData.age < 1) {
+      setError('나이는 1 이상이어야 합니다.');
+      return;
+    }
+
     try {
-      await userService.signup(username, password);
+      await userService.signUp(formData);
       navigate('/login');
     } catch (err) {
       setError('회원가입에 실패했습니다. 다시 시도해주세요.');
     }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: name === 'age' ? parseInt(value) || 0 : value
+    }));
   };
 
   return (
@@ -41,9 +59,10 @@ const SignupPage: React.FC = () => {
             </label>
             <input
               id="username"
+              name="username"
               type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              value={formData.username}
+              onChange={handleChange}
               className="w-full p-3 rounded bg-[#222] text-white border border-[#333] focus:border-blue-500 focus:outline-none"
               required
             />
@@ -54,14 +73,15 @@ const SignupPage: React.FC = () => {
             </label>
             <input
               id="password"
+              name="password"
               type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={formData.password}
+              onChange={handleChange}
               className="w-full p-3 rounded bg-[#222] text-white border border-[#333] focus:border-blue-500 focus:outline-none"
               required
             />
           </div>
-          <div className="mb-6">
+          <div className="mb-4">
             <label className="block text-gray-300 mb-2" htmlFor="confirmPassword">
               비밀번호 확인
             </label>
@@ -70,6 +90,37 @@ const SignupPage: React.FC = () => {
               type="password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
+              className="w-full p-3 rounded bg-[#222] text-white border border-[#333] focus:border-blue-500 focus:outline-none"
+              required
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-gray-300 mb-2" htmlFor="gender">
+              성별
+            </label>
+            <select
+              id="gender"
+              name="gender"
+              value={formData.gender}
+              onChange={handleChange}
+              className="w-full p-3 rounded bg-[#222] text-white border border-[#333] focus:border-blue-500 focus:outline-none"
+              required
+            >
+              <option value="MALE">남성</option>
+              <option value="FEMALE">여성</option>
+            </select>
+          </div>
+          <div className="mb-6">
+            <label className="block text-gray-300 mb-2" htmlFor="age">
+              나이
+            </label>
+            <input
+              id="age"
+              name="age"
+              type="number"
+              min="1"
+              value={formData.age}
+              onChange={handleChange}
               className="w-full p-3 rounded bg-[#222] text-white border border-[#333] focus:border-blue-500 focus:outline-none"
               required
             />
