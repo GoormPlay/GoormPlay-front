@@ -1,5 +1,6 @@
 import { ApiClient } from '../ApiClient';
-import { Video, VideoEvent } from '../../types/video';
+import { VideoEvent } from '../../types/video';
+import { Video } from '../types';
 import { API_ENDPOINTS } from '../types';
 
 // dummyVideos를 Video 타입으로 선언

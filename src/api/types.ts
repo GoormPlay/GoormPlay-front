@@ -39,7 +39,7 @@ export interface Video {
   synopsis: string;
   trending?: boolean;
   latest?: boolean;
-  personalized?: boolean;
+  recommended?: boolean;
 }
 // 비디오 관련
 export interface VideoCard {
@@ -51,7 +51,16 @@ export interface VideoCard {
   thumbnail: string;
   trending?: boolean;
   latest?: boolean;
-  personalized?: boolean;
+  recommended?: boolean;
+}
+
+export interface ContentCard {
+  id: string;
+  title: string;
+  kind: string;
+  genre: string[];
+  thumbnail: string;
+  videoId: string;
 }
 
 export type VideoEventType = 'play' | 'pause' | 'end' | 'exit' | 'time';
@@ -119,7 +128,7 @@ export interface SignInRequestDto {
 }
 
 export interface MemberProfileDto {
-  id: string;
+
   username: string;
   gender: 'MALE' | 'FEMALE';
   age: number;
@@ -128,6 +137,11 @@ export interface MemberProfileDto {
   isCancelScheduled?: boolean;
   isSubscribed?: boolean;
   liked?: Video[];
+}
+
+export interface InteractionRequestDto {
+  contentId: string;
+  liked: boolean;
 }
 
 export const API_ENDPOINTS = {
@@ -227,6 +241,12 @@ export const API_ENDPOINTS = {
     isPublic: false,
     isAuth: false,
     service: 'member' as const,
+  },
+  LIKE: {
+    path: '/ui/like',
+    isPublic: false,
+    isAuth: false,
+    service: 'interaction' as const,
   },
 } as const;
 

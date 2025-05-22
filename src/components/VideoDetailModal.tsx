@@ -1,8 +1,9 @@
-import React, {useState}from 'react';
+import React, {useState, useEffect} from 'react';
 import { Modal, Box, Button } from '@mui/material';
 import { Video } from '../types/video';
 import { Review } from '../types/Review';
 import { useNavigate } from 'react-router-dom';
+import { userInteractionService } from '../api/services/UserInteractionService';
 
 interface VideoDetailModalProps {
   open: boolean;
@@ -18,12 +19,37 @@ const dummyReviews: Review[] = [
 
 const VideoDetailModal: React.FC<VideoDetailModalProps> = ({ open, video, onClose }) => {
   const [reviews] = useState<Review[]>(dummyReviews);
+  const [isLiked, setIsLiked] = useState(false);
   const navigate = useNavigate();
-  console.log(open, video, video?.videoId)
-  // 조건부 렌더링: video가 없으면 아무것도 렌더링하지 않음
+
+  useEffect(() => {
+    if (video?.id) {
+      // 비디오가 변경될 때마다 좋아요 상태 초기화
+      setIsLiked(false);
+    }
+  }, [video?.id]);
+
+  const handleLikeClick = async () => {
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      const shouldLogin = window.confirm('로그인이 필요한 서비스입니다. 로그인하시겠습니까?');
+      if (shouldLogin) {
+        navigate('/login');
+      }
+      return;
+    }
+
+    try {
+      await userInteractionService.updateLike(video.id, !isLiked);
+      setIsLiked(!isLiked);
+    } catch (error) {
+      console.error('좋아요 업데이트 실패:', error);
+      alert('좋아요 상태 변경에 실패했습니다.');
+    }
+  };
+
   if (!open || !video || !video.videoId) return null;
 
-  // 이 시점에서는 video와 video.videoId가 항상 있음!
   const previewUrl = `https://www.youtube.com/embed/${video.videoId}?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&start=0&end=10`;
 
   return (
@@ -50,21 +76,24 @@ const VideoDetailModal: React.FC<VideoDetailModalProps> = ({ open, video, onClos
         <div className="flex flex-col md:flex-row w-full h-full">
           {/* 왼쪽: 썸네일/정보 */}
           <div className="md:w-2/3 w-full p-8">
-          <div className="w-full aspect-video bg-black rounded-lg overflow-hidden mb-6 relative">
-          <iframe
-            title="미리보기"
-            src={previewUrl}
-            allow="autoplay; encrypted-media"
-            allowFullScreen
-            className="w-full h-full"
-            style={{ border: 0 }}
-          />
-        </div>
+            <div className="w-full aspect-video bg-black rounded-lg overflow-hidden mb-6 relative">
+              <iframe
+                title="미리보기"
+                src={previewUrl}
+                allow="autoplay; encrypted-media"
+                allowFullScreen
+                className="w-full h-full"
+                style={{ border: 0 }}
+              />
+            </div>
             <div className="flex items-center justify-between mb-2">
               <h2 className="text-3xl font-extrabold">{video.title}</h2>
               <div className="flex gap-2">
-                <button className="w-10 h-10 rounded-full bg-[#222] flex items-center justify-center hover:bg-[#333]">
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <button 
+                  className={`w-10 h-10 rounded-full ${isLiked ? 'bg-red-600' : 'bg-[#222]'} flex items-center justify-center hover:bg-[#333]`}
+                  onClick={handleLikeClick}
+                >
+                  <svg className="w-6 h-6 text-white" fill={isLiked ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
                     <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" strokeWidth="2" />
                   </svg>
                 </button>

@@ -4,7 +4,7 @@ import { userService } from '../api/services/UserService';
 import { MemberProfileDto } from '../api/types';
 
 const defaultProfile: MemberProfileDto = {
-  id: '1',
+
   username: 'test',
   gender: 'MALE',
   age: 20,
@@ -89,7 +89,7 @@ const NavBar = () => {
                 className="flex items-center gap-2 text-white hover:text-blue-400"
               >
                 <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold">
-                  {user.username[0].toUpperCase()}
+                  {user.username}
                 </div>
                 <span>{user.username}</span>
               </button>

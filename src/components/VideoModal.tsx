@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Video, VideoEvent, VideoEventType } from '../types/video';
+import { VideoEvent, VideoEventType } from '../types/video';
+import { Video } from '../api/types';
 import { videoService } from '../api/services/VideoService';
 
 interface VideoModalProps {
