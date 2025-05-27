@@ -27,7 +27,7 @@ const NavBar = () => {
         .then(response => {
           if (response.data) {
             // 백엔드에서 받은 데이터가 있으면 그대로 사용
-            setUser(response.data);
+            setUser(response.data.data);
           } else {
             // 백엔드에서 데이터가 없으면 defaultProfile 사용
             setUser(defaultProfile);

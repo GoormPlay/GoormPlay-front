@@ -35,17 +35,28 @@ export class ApiClient {
       (config: InternalAxiosRequestConfig) => {
         const customConfig = config as CustomInternalRequestConfig;
         const endpointKey = customConfig.endpointKey;
-           console.log('Request Config:', config);  // 전체 설정 로그
-    console.log('Endpoint Key:', endpointKey);  // endpoint key 확인
+        console.log('Request Config:', config);  // 전체 설정 로그
+        console.log('Endpoint Key:', endpointKey);  // endpoint key 확인
         
         if (endpointKey) {
           const endpoint = API_ENDPOINTS[endpointKey];
-           console.log('Endpoint Config:', endpoint);  // endpoint 설정 확인
+          console.log('Endpoint Config:', endpoint);  // endpoint 설정 확인
           const basePath = endpoint.isPublic ? '/api/public' : '/api';
-          customConfig.url = `${basePath}${endpoint.path}`;
           
-
-           console.log('Final Request URL:', customConfig.url);  // 실제 요청 URL 확인
+          // URL에서 path parameter 처리
+          let url = `${basePath}${endpoint.path}`;
+          if (customConfig.params) {
+            Object.entries(customConfig.params).forEach(([key, value]) => {
+              if (url.includes(`{${key}}`)) {
+                url = url.replace(`{${key}}`, value as string);
+                delete customConfig.params[key];
+              }
+            });
+          }
+          
+          customConfig.url = url;
+          console.log('Final Request URL:', customConfig.url);  // 실제 요청 URL 확인
+          
           if (!endpoint.isPublic && !endpoint.isAuth) {
             const token = localStorage.getItem('accessToken');
             if (token) {
@@ -68,8 +79,8 @@ export class ApiClient {
           data: error.response?.data,
         };
 
-        // 401 에러가 아닌 경우에만 토큰 제거
-        if (error.response?.status !== 401) {
+        // 401 에러일 때만 토큰 제거
+        if (error.response?.status === 401) {
           localStorage.removeItem('accessToken');
           this.setAuthToken(null);
         }
@@ -115,8 +126,20 @@ export class ApiClient {
     return this.request<T>(endpoint, { method: 'GET', params });
   }
 
-  public async post<T>(endpoint: ApiEndpoint, data: unknown): Promise<ApiResponse<T>> {
-    return this.request<T>(endpoint, { method: 'POST', data });
+  public async post<T>(endpoint: ApiEndpoint, data: unknown, config?: { params?: Record<string, string> }): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, { method: 'POST', data, params: config?.params });
+  }
+
+  public async put<T>(endpoint: ApiEndpoint, data: unknown, config?: { params?: Record<string, string> }): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, { method: 'PUT', data, params: config?.params });
+  }
+
+  public async patch<T>(endpoint: ApiEndpoint, data: unknown, config?: { params?: Record<string, string> }): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, { method: 'PATCH', data, params: config?.params });
+  }
+
+  public async delete<T>(endpoint: ApiEndpoint, config?: { params?: Record<string, string> }): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, { method: 'DELETE', params: config?.params });
   }
 
   public async postMultipart<T>(endpoint: ApiEndpoint, formData: FormData): Promise<ApiResponse<T>> {

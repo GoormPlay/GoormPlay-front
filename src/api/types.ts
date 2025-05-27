@@ -31,16 +31,50 @@ export interface ApiResponse<T> {
 // 비디오 관련
 export interface Video {
   id: string;
+  title: string;
   kind: string;
   genre: string[];
-  title: string;
   videoId: string;
   thumbnail: string;
   synopsis: string;
   trending?: boolean;
   latest?: boolean;
   recommended?: boolean;
+  year?: number;
+  KMRB?: string;
+  cast?: string[];
+  provider?: string[];
+  director?: string[];
+  releaseDate?: string;
 }
+
+export interface CreateReviewRequest {
+  comment: string;
+  rating: number;
+}
+
+export interface UpdateReviewRequest {
+  id: string;
+  comment: string;
+  rating: number;
+}
+
+export interface Review {
+  id?: string;
+  userId: string;
+  username: string;
+  rating: number;
+  comment: string;
+  createdAt: string;
+}
+
+export interface ContentDetailResponse {
+  content: Video;
+  isLiked: boolean;
+  reviews: Review[];
+  averageRating: number;
+}
+
 // 비디오 관련
 export interface VideoCard {
   id: string;
@@ -127,8 +161,12 @@ export interface SignInRequestDto {
   password: string;
 }
 
-export interface MemberProfileDto {
+export interface SignInResponseDto {
+  accessToken: string;
+  username: string;
+}
 
+export interface MemberProfileDto {
   username: string;
   gender: 'MALE' | 'FEMALE';
   age: number;
@@ -141,7 +179,24 @@ export interface MemberProfileDto {
 
 export interface InteractionRequestDto {
   contentId: string;
-  liked: boolean;
+}
+
+export interface ContentClickEventDto {
+  contentId: string;
+  timestamp: string;
+  trending: boolean;
+  latest: boolean;
+  recommended: boolean;
+  genre: string[];
+}
+
+export interface PaginatedResponse<T> {
+  contents: T[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  isLast: boolean;
 }
 
 export const API_ENDPOINTS = {
@@ -158,7 +213,7 @@ export const API_ENDPOINTS = {
     service: 'content' as const,
   },
   LATEST: {
-    path: '/contents/latest-test',
+    path: '/contents/latest',
     isPublic: true,
     isAuth: false,
     service: 'content' as const,
@@ -170,7 +225,7 @@ export const API_ENDPOINTS = {
     service: 'content' as const,
   },
   VIDEO_DETAIL: {
-    path: '/contents', // /:id
+    path: '/contents/{id}',
     isPublic: true,
     isAuth: false,
     service: 'content' as const,
@@ -247,6 +302,36 @@ export const API_ENDPOINTS = {
     isPublic: false,
     isAuth: false,
     service: 'interaction' as const,
+  },
+  CONTENT_CLICK: {
+    path: '/ui/click/content',
+    isPublic: false,
+    isAuth: false,
+    service: 'interaction' as const,
+  },
+  CREATE_REVIEW: {
+    path: '/review/new',
+    isPublic: false,
+    isAuth: false,
+    service: 'review' as const,
+  },
+  UPDATE_REVIEW: {
+    path: '/review/update',
+    isPublic: false,
+    isAuth: false,
+    service: 'review' as const,
+  },
+  DELETE_REVIEW: {
+    path: '/review/delete/{reviewId}',
+    isPublic: false,
+    isAuth: false,
+    service: 'review' as const,
+  },
+  GET_REVIEWS: {
+    path: '/review/list',
+    isPublic: false,
+    isAuth: false,
+    service: 'review' as const,
   },
 } as const;
 

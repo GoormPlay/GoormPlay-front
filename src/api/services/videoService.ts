@@ -1,6 +1,6 @@
 import { ApiClient } from '../ApiClient';
 import { VideoEvent } from '../../types/video';
-import { Video } from '../types';
+import { Video, ContentDetailResponse, PaginatedResponse } from '../types';
 import { API_ENDPOINTS } from '../types';
 
 // dummyVideos를 Video 타입으로 선언
@@ -240,13 +240,20 @@ class VideoService {
     }
   }
 
-  async getLatest(): Promise<Video[]> {
+  async getLatest(page: number = 0): Promise<PaginatedResponse<Video>> {
     try {
-      const response = await this.apiClient.get<Video[]>('LATEST');
+      const response = await this.apiClient.get<PaginatedResponse<Video>>('LATEST', { page: page.toString() });
       return response.data;
     } catch (error) {
       console.error('Error fetching videos:', error);
-      return dummyVideos;
+      return {
+        contents: dummyVideos,
+        page: 0,
+        size: 10,
+        totalElements: dummyVideos.length,
+        totalPages: Math.ceil(dummyVideos.length / 10),
+        isLast: true
+      };
     }
   }
 
@@ -275,6 +282,16 @@ class VideoService {
       await this.apiClient.post('TRACK_EVENT', event);
     } catch (error) {
       console.error('Error tracking event:', error);
+      throw error;
+    }
+  }
+
+  async getContentDetail(videoId: string): Promise<ContentDetailResponse> {
+    try {
+      const response = await this.apiClient.get<ContentDetailResponse>('VIDEO_DETAIL', { id: videoId });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching content detail:', error);
       throw error;
     }
   }

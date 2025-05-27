@@ -1,5 +1,5 @@
 import { ApiClient } from "../ApiClient";
-import { User, SignUpRequestDto, SignInRequestDto, MemberProfileDto } from "../types";
+import { User, SignUpRequestDto, SignInRequestDto, MemberProfileDto, ApiResponse, SignInResponseDto } from "../types";
 
 class UserService {
     private apiClient: ApiClient;
@@ -9,10 +9,11 @@ class UserService {
     }
 
     async signIn(data: SignInRequestDto) {
-      const response = await this.apiClient.post<{ message: string; data: string }>('SIGNIN', data);
+      const response = await this.apiClient.post<{ message: string; data: SignInResponseDto }>('SIGNIN', data);
       if (response.data.data) {
-          localStorage.setItem('accessToken', response.data.data);
-          this.apiClient.setAuthToken(response.data.data);
+          localStorage.setItem('accessToken', response.data.data.accessToken);
+          localStorage.setItem('username', response.data.data.username);
+          this.apiClient.setAuthToken(response.data.data.accessToken);
       }
         return response;
     }
@@ -21,8 +22,8 @@ class UserService {
         return this.apiClient.post<string>('SIGNUP', data);
     }
 
-    async getProfile() {
-        return this.apiClient.get<MemberProfileDto>('PROFILE');
+    async getProfile(): Promise<ApiResponse<{ data: MemberProfileDto }>> {
+        return this.apiClient.get<{ data: MemberProfileDto }>('PROFILE');
     }
 
     async getHistory() {
@@ -35,6 +36,7 @@ class UserService {
 
     logout() {
         localStorage.removeItem('accessToken');
+        localStorage.removeItem('username');
         this.apiClient.setAuthToken(null);
     }
 }

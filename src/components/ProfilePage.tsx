@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import { userService } from "../api/services/UserService";
-import { MemberProfileDto, Video } from "../api/types";
+import { MemberProfileDto, Video, ApiResponse } from "../api/types";
 import SectionSlider from "./SectionSlider";
 import { useNavigate } from "react-router-dom";
 
@@ -22,9 +22,12 @@ const ProfilePage: React.FC = () => {
 
     useEffect(() => {
         userService.getProfile()
-            .then(response => {
+            .then((response: ApiResponse<{ data: MemberProfileDto }>) => {
                 console.log('프로필 응답:', response.data); // 디버깅용 로그
-                setProfile(response.data);
+                if (response.data.data && response.data.data.liked) {
+                    console.log('liked 배열:', response.data.data.liked); // 디버깅용 로그
+                }
+                setProfile(response.data.data);
             })
             .catch(() => {
                 console.log('API 요청 실패, 더미 데이터 사용');
@@ -35,6 +38,9 @@ const ProfilePage: React.FC = () => {
     if (!profile) {
         return <div className="max-w-2xl mx-auto mt-10 p-8">Loading...</div>;
     }
+
+    const hasLikedContent = profile.liked && Array.isArray(profile.liked) && profile.liked.length > 0;
+    console.log('hasLikedContent:', hasLikedContent); // 디버깅용 로그
 
     return (
         <div className="min-h-screen bg-[#141414] pt-20">
@@ -59,7 +65,7 @@ const ProfilePage: React.FC = () => {
                     </button>
                 </div>
                 {/* 좋아요한 콘텐츠 */}
-                {profile.liked && Array.isArray(profile.liked) && profile.liked.length > 0 ? (
+                {hasLikedContent && profile.liked ? (
                     <SectionSlider
                         title="찜한 콘텐츠"
                         videos={profile.liked}

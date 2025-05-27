@@ -62,19 +62,50 @@ function FloatingMenu() {
   );
 }
 
-function MainPage({ videos, setSelectedVideo }: { videos: Video[], setSelectedVideo: (v: Video) => void }) {
+function MainPage({ videos: initialVideos, setSelectedVideo }: { videos: Video[], setSelectedVideo: (v: Video) => void }) {
+  const [videos, setVideos] = useState<Video[]>(initialVideos);
   const [trending, setTrending] = useState<Video[]>([]);
   const [latest, setLatest] = useState<Video[]>([]);
   const [recommend, setRecommend] = useState<Video[]>([]);
-  // const [ads, setAds] = useState<Ad[]>([]);
+  const [page, setPage] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
   const navigate = useNavigate();
 
+  const loadMoreVideos = async () => {
+    if (loading || !hasMore) return;
+    
+    setLoading(true);
+    try {
+      const response = await videoService.getLatest(page);
+      if (response.contents.length === 0 || response.isLast) {
+        setHasMore(false);
+      } else {
+        setVideos(prev => [...prev, ...response.contents]);
+        setPage(prev => prev + 1);
+      }
+    } catch (error) {
+      console.error('Error loading more videos:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    // videoService.getTrending().then(setTrending);
-    // videoService.getLatest().then(setLatest);
-    // videoService.getRecommend().then(setRecommend);
-    // videoService.getAds().then(setAds);
-  }, []);
+    const handleScroll = () => {
+      if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 1000) {
+        loadMoreVideos();
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [page, loading, hasMore]);
+
+  useEffect(() => {
+    setVideos(initialVideos);
+  }, [initialVideos]);
+
   return (
     <>
       <NavBar />
@@ -88,20 +119,34 @@ function MainPage({ videos, setSelectedVideo }: { videos: Video[], setSelectedVi
             videos={videos.slice(0, 6)}
             showRank={false}
             onCardClick={setSelectedVideo}
+            sectionType="trending"
           />
           <SectionSlider
             title="회원님을 위해 엄선한 오늘의 콘텐츠"
             videos={videos.slice(6, 12)}
             showRank={false}
             onCardClick={setSelectedVideo}
+            sectionType="recommend"
           />
           <SectionSlider
             title="GoormPlay에 새로 올라온 콘텐츠"
             videos={videos.slice(6, 12)}
             showRank={false}
             onCardClick={setSelectedVideo}
+            sectionType="latest"
           />
         </div>
+        {loading && (
+          <div className="flex justify-center py-8">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+          </div>
+        )}
+        {!hasMore && (
+          <div className="text-center py-8 text-gray-400">
+            <p className="text-lg mb-2">더 이상 불러올 콘텐츠가 없습니다</p>
+            <p className="text-sm">새로운 콘텐츠를 기다려주세요!</p>
+          </div>
+        )}
         <div className="w-full flex justify-center py-8">
           <img src="/banner-bottom.png" alt="광고" className="rounded-lg" />
         </div>
@@ -124,7 +169,7 @@ function App() {
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
 
   useEffect(() => {
-    videoService.getLatest().then(setVideos);
+    videoService.getLatest().then(response => setVideos(response.contents));
   }, []);
 
   return (
