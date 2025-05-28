@@ -1,28 +1,26 @@
 import React, { useEffect, useRef } from 'react';
-import { useParams } from 'react-router-dom';
-import { videoService } from '../api/services/VideoService';
-import { VideoEventType } from '../types/video';
-
+import { useParams, useSearchParams } from 'react-router-dom';
+import { userInteractionService } from '../api/services/UserInteractionService';
+import { VideoEventType } from '../api/types';
 
 const WatchPage: React.FC = () => {
-    const { videoId } = useParams<{ videoId: string }>();
+    const { contentId } = useParams<{ contentId: string }>();
+    const [searchParams] = useSearchParams();
+    const videoId = searchParams.get('videoId');
     const playerRef = useRef<any>(null);
 
-    // 행동 데이터 전송
-    const sendEvent = (eventType: VideoEventType, currentTime: number) => {
-        if(!videoId) return;
-        videoService.trackEvent({
-            videoId,
-            eventType,
-            timestamp: new Date().toISOString(),
-            currentTime,
-        });
+    const sendEvent = (eventType: VideoEventType, currentTime: number, duration: number) => {
+        if (!contentId) return;
+        const watchProgress = (currentTime / duration) * 100;
+        userInteractionService.trackEvent(contentId, eventType, new Date().toISOString(), watchProgress);
     };
 
     useEffect(() => {
-        if(!videoId) return;
+        if (!contentId || !videoId) return;
 
         function createPlayer() {
+            if (!videoId || !contentId) return;
+            
             playerRef.current = new window.YT.Player('youtube-player', {
                 videoId,
                 playerVars: {
@@ -34,42 +32,51 @@ const WatchPage: React.FC = () => {
                 },
                 events: {
                     onStateChange: (event: any) => {
+                        if (!contentId) return;
                         const state = event.data;
                         const currentTime = event.target.getCurrentTime();
-                        if (state === window.YT.PlayerState.PLAYING) sendEvent('play', currentTime);
-                        else if (state === window.YT.PlayerState.PAUSED) sendEvent('pause', currentTime);
-                        else if (state === window.YT.PlayerState.ENDED) sendEvent('end', currentTime);
+                        const duration = event.target.getDuration();
+                        
+                        if (state === window.YT.PlayerState.PLAYING) {
+                            sendEvent('play_start', currentTime, duration);
+                        } else if (state === window.YT.PlayerState.PAUSED) {
+                            sendEvent('play_pause', currentTime, duration);
+                        } else if (state === window.YT.PlayerState.ENDED) {
+                            sendEvent('play_end', currentTime, duration);
+                        }
                     },
                     onError: (event: any) => {
                         console.error('Youtube 플레이어 오류:', event);
                     },
-                    
                 }
-            })
-    
+            });
         }
-        if(!window.YT){
+
+        if (!window.YT) {
             const tag = document.createElement('script');
             tag.src = 'https://www.youtube.com/iframe_api';
             document.body.appendChild(tag);
-      window.onYouTubeIframeAPIReady = createPlayer;
-        }else{
+            window.onYouTubeIframeAPIReady = createPlayer;
+        } else {
             createPlayer();
         }
 
         return () => {
-            if(playerRef.current){
-                sendEvent('exit', playerRef.current.getCurrentTime());
+            if (playerRef.current && contentId) {
+                const currentTime = playerRef.current.getCurrentTime();
+                const duration = playerRef.current.getDuration();
+                sendEvent('play_exit', currentTime, duration);
                 playerRef.current.destroy();
             }
         };
-    }, [videoId]);
+    }, [contentId, videoId]);
+
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-black">
-        <div className="w-full max-w-4xl aspect-video bg-black rounded-lg overflow-hidden">
-          <div id="youtube-player" className="w-full h-full" />
+            <div className="w-full max-w-4xl aspect-video bg-black rounded-lg overflow-hidden">
+                <div id="youtube-player" className="w-full h-full" />
+            </div>
         </div>
-      </div>
     );
 };
 

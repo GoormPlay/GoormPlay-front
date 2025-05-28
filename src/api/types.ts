@@ -66,6 +66,7 @@ export interface Review {
   rating: number;
   comment: string;
   createdAt: string;
+  isAuthor: boolean;
 }
 
 export interface ContentDetailResponse {
@@ -97,7 +98,7 @@ export interface ContentCard {
   videoId: string;
 }
 
-export type VideoEventType = 'play' | 'pause' | 'end' | 'exit' | 'time';
+export type VideoEventType = 'play_start' | 'play_pause' | 'play_exit' | 'play_end';
 
 export interface VideoEvent {
   videoId: string;
@@ -179,6 +180,7 @@ export interface MemberProfileDto {
 
 export interface InteractionRequestDto {
   contentId: string;
+  timestamp: string;
 }
 
 export interface ContentClickEventDto {
@@ -197,6 +199,13 @@ export interface PaginatedResponse<T> {
   totalElements: number;
   totalPages: number;
   isLast: boolean;
+}
+
+export interface VideoEventDto {
+    contentId: string;
+    timestamp: string;
+    eventType: VideoEventType;
+    watchProgress: number;  // double 타입으로 백엔드에서 받을 것을 권장
 }
 
 export const API_ENDPOINTS = {
@@ -231,8 +240,8 @@ export const API_ENDPOINTS = {
     service: 'content' as const,
   },
   TRACK_EVENT: {
-    path: '/events/video',
-    isPublic: true,
+    path: '/ui/play/{contentId}',
+    isPublic: false,
     isAuth: false,
     service: 'videoEvent' as const,
   },

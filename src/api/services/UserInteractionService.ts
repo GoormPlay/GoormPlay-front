@@ -1,5 +1,5 @@
 import { ApiClient } from "../ApiClient";
-import { InteractionRequestDto, ContentClickEventDto } from "../types";
+import { InteractionRequestDto, ContentClickEventDto, VideoEventType, VideoEventDto } from "../types";
 
 class UserInteractionService {
     private apiClient: ApiClient;
@@ -10,7 +10,8 @@ class UserInteractionService {
 
     async updateLike(videoId: string) {
         const requestDto: InteractionRequestDto = {
-            contentId: videoId
+            contentId: videoId,
+            timestamp: new Date().toISOString()
         };
         return this.apiClient.post<void>('LIKE', requestDto);
     }
@@ -31,6 +32,23 @@ class UserInteractionService {
             genre: genre
         };
         return this.apiClient.post<void>('CONTENT_CLICK', requestDto);
+    }
+
+    async trackEvent(contentId: string, eventType: VideoEventType, timestamp: string, watchProgress: number) {
+        const token = localStorage.getItem('accessToken');
+        if (!token) return;
+
+        try {
+            const requestDto: VideoEventDto = {
+                contentId,
+                timestamp,
+                eventType,
+                watchProgress
+            };
+            await this.apiClient.post<void>('TRACK_EVENT', requestDto, { params: { contentId } });
+        } catch (error) {
+            console.error('Error tracking event:', error);
+        }
     }
 }
 

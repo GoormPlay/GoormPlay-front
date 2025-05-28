@@ -205,7 +205,7 @@ const VideoDetailModal: React.FC<VideoDetailModalProps> = ({ open, video, onClos
               <p className="text-gray-300 mb-6">{video.synopsis}</p>
               <button 
                 className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg text-xl mb-6"
-                onClick={() => navigate(`/watch/${video.videoId}`)}
+                onClick={() => navigate(`/watch/${video.id}?videoId=${video.videoId}`)}
               >
                 재생하기
               </button>
@@ -251,7 +251,7 @@ const VideoDetailModal: React.FC<VideoDetailModalProps> = ({ open, video, onClos
                           <span className="text-yellow-400">{'★'.repeat(review.rating)}</span>
                           <span className="text-gray-400 text-xs">{review.createdAt}</span>
                         </div>
-                        {review.username === localStorage.getItem('username') && (
+                        {review.isAuthor && (
                           <div className="flex gap-2">
                             <button 
                               onClick={() => handleEditReview(review)}

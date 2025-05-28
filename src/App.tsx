@@ -188,7 +188,7 @@ function App() {
             </>
           }
         />
-        <Route path="/watch/:videoId" element={<WatchPage />} />
+        <Route path="/watch/:contentId" element={<WatchPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/profile" element={<ProfilePage />} />
