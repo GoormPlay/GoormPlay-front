@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import HeroBanner from './components/HeroBanner';
 import SectionSlider from './components/SectionSlider';
 import VideoDetailModal from './components/VideoDetailModal';
@@ -64,15 +64,11 @@ function FloatingMenu() {
 
 function MainPage({ videos: initialVideos, setSelectedVideo }: { videos: Video[], setSelectedVideo: (v: Video) => void }) {
   const [videos, setVideos] = useState<Video[]>(initialVideos);
-  const [trending, setTrending] = useState<Video[]>([]);
-  const [latest, setLatest] = useState<Video[]>([]);
-  const [recommend, setRecommend] = useState<Video[]>([]);
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
-  const navigate = useNavigate();
 
-  const loadMoreVideos = async () => {
+  const loadMoreVideos = useCallback(async () => {
     if (loading || !hasMore) return;
     
     setLoading(true);
@@ -89,7 +85,7 @@ function MainPage({ videos: initialVideos, setSelectedVideo }: { videos: Video[]
     } finally {
       setLoading(false);
     }
-  };
+  }, [loading, hasMore, page]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -100,7 +96,7 @@ function MainPage({ videos: initialVideos, setSelectedVideo }: { videos: Video[]
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [page, loading, hasMore]);
+  }, [loadMoreVideos]);
 
   useEffect(() => {
     setVideos(initialVideos);

@@ -1,6 +1,6 @@
-import React, {useEffect, useState} from "react";
-import { userService } from "../api/services/UserService";
-import { MemberProfileDto, Video, ApiResponse } from "../api/types";
+import React, { useState, useEffect } from 'react';
+import { MemberProfileDto, ApiResponse } from '../api/types';
+import { userService } from '../api/services/UserService';
 import SectionSlider from "./SectionSlider";
 import { useNavigate } from "react-router-dom";
 
@@ -18,6 +18,7 @@ const dummyProfile: MemberProfileDto = {
 const ProfilePage: React.FC = () => {
     const navigate = useNavigate();
     const [profile, setProfile] = useState<MemberProfileDto | null>(null);
+    const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {

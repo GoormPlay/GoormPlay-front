@@ -1,5 +1,5 @@
-import { ApiClient } from "../ApiClient";
-import { CreateReviewRequest, UpdateReviewRequest, Review } from "../types";
+import { ApiClient } from '../ApiClient';
+import { CreateReviewRequest, UpdateReviewRequest } from '../types';
 
 class ReviewService {
     private apiClient: ApiClient;

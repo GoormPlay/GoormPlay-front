@@ -12,6 +12,7 @@ const dummySubscription: Subscription = {
 };
 
 const SubscriptionPage: React.FC = () => {
+    const [loading, setLoading] = useState(true);
     const [subscription, setSubscription] = useState<Subscription | null>(null);
     const [error, setError] = useState<string | null>(null);
 
