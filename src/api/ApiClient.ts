@@ -1,14 +1,11 @@
 import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse } from 'axios';
 import { 
-  ApiError, 
-  ApiResponse, 
-  ApiEndpoint, 
-  API_ENDPOINTS, 
-  CustomRequestConfig, 
-  CustomInternalRequestConfig,
-  SignUpRequestDto,
-  SignInRequestDto,
-  MemberProfileDto
+  ApiError,
+  ApiResponse,
+  ApiEndpoint,
+  API_ENDPOINTS,
+  CustomRequestConfig,
+  CustomInternalRequestConfig
 } from './types';
 
 // API Gateway URL을 기본 URL로 설정
