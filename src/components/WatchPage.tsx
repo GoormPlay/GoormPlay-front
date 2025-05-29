@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useCallback } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { userInteractionService } from '../api/services/UserInteractionService';
 import { VideoEventType } from '../api/types';
@@ -9,11 +9,11 @@ const WatchPage: React.FC = () => {
     const videoId = searchParams.get('videoId');
     const playerRef = useRef<any>(null);
 
-    const sendEvent = (eventType: VideoEventType, currentTime: number, duration: number) => {
+    const sendEvent = useCallback((eventType: VideoEventType, currentTime: number, duration: number) => {
         if (!contentId) return;
         const watchProgress = (currentTime / duration) * 100;
         userInteractionService.trackEvent(contentId, eventType, new Date().toISOString(), watchProgress);
-    };
+    }, [contentId]);
 
     useEffect(() => {
         if (!contentId || !videoId) return;
@@ -69,7 +69,7 @@ const WatchPage: React.FC = () => {
                 playerRef.current.destroy();
             }
         };
-    }, [contentId, videoId]);
+    }, [contentId, videoId, sendEvent]);
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-black">

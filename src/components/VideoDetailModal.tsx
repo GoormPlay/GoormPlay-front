@@ -38,7 +38,7 @@ const VideoDetailModal: React.FC<VideoDetailModalProps> = ({ open, video, onClos
           });
         });
     }
-  }, [video?.id]);
+  }, [video]);
 
   const handleLikeClick = async () => {
     const token = localStorage.getItem('accessToken');
