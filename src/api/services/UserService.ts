@@ -1,4 +1,4 @@
-import { ApiClient } from "../ApiClient";
+import { ApiClient } from '../ApiClient';
 import { User, SignUpRequestDto, SignInRequestDto, MemberProfileDto, ApiResponse, SignInResponseDto } from "../types";
 
 class UserService {
