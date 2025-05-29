@@ -1,5 +1,5 @@
 import { ApiClient } from '../ApiClient';
-import { User, SignUpRequestDto, SignInRequestDto, MemberProfileDto, ApiResponse, SignInResponseDto } from "../types";
+import { SignUpRequestDto, SignInRequestDto, MemberProfileDto, ApiResponse, SignInResponseDto } from "../types";
 
 class UserService {
     private apiClient: ApiClient;

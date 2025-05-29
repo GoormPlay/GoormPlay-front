@@ -12,15 +12,12 @@ const dummySubscription: Subscription = {
 };
 
 const SubscriptionPage: React.FC = () => {
-    const [loading, setLoading] = useState(true);
     const [subscription, setSubscription] = useState<Subscription | null>(null);
-    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         subscriptionService.getSubscription()
             .then(response => setSubscription(response.data))
             .catch(() => {
-                setError('구독 정보를 불러오는데 실패했습니다.');
                 setSubscription(dummySubscription);
             });
     }, []);
