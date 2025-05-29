@@ -20,7 +20,7 @@ jobs:
       - name: Install and Build
         run: |
           npm ci
-          npm run build
+          PUBLIC_URL=. npm run build
 
       - name: Deploy to S3
         uses: jakejarvis/s3-sync-action@master
