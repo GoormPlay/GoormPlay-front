@@ -18,8 +18,6 @@ const dummyProfile: MemberProfileDto = {
 const ProfilePage: React.FC = () => {
     const navigate = useNavigate();
     const [profile, setProfile] = useState<MemberProfileDto | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         userService.getProfile()

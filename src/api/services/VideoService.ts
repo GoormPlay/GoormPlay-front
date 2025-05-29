@@ -1,7 +1,6 @@
 import { ApiClient } from '../ApiClient';
 import { VideoEvent } from '../../types/video';
 import { Video, ContentDetailResponse, PaginatedResponse } from '../types';
-import { API_ENDPOINTS } from '../types';
 
 // dummyVideos를 Video 타입으로 선언
 const dummyVideos: Video[] = [

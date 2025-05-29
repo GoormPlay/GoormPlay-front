@@ -161,8 +161,6 @@ const AdCompareChart: React.FC<AdCompareChartProps> = ({ ads }) => {
 
 const AdManagementPage: React.FC = () => {
     const [ads, setAds] = useState<Ad[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
     const [adOn, setAdOn] = useState(true);
     const [selectedAdSnId, setSelectedAdSnId] = useState<string>('AD001');
     const [selectedType, setSelectedType] = useState<'전체'|'A'|'B'>('전체');
