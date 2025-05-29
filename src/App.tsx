@@ -116,7 +116,7 @@ function MainPage({ videos: initialVideos, setSelectedVideo }: { videos: Video[]
         <div className="container mx-auto px-4">
           <SectionSlider
             title="오늘 대한민국의 TOP 10 시리즈"
-            videos={videos.slice(0, 6)}
+            videos={videos.slice(12, 18)}
             showRank={false}
             onCardClick={setSelectedVideo}
             sectionType="trending"
@@ -130,11 +130,37 @@ function MainPage({ videos: initialVideos, setSelectedVideo }: { videos: Video[]
           />
           <SectionSlider
             title="GoormPlay에 새로 올라온 콘텐츠"
-            videos={videos.slice(6, 12)}
+            videos={videos.slice(0, 6)}
             showRank={false}
             onCardClick={setSelectedVideo}
             sectionType="latest"
           />
+          
+          {/* 무한 스크롤로 추가되는 콘텐츠 */}
+          <div className="mt-12">
+            <h2 className="text-2xl font-bold text-white mb-6">콘텐츠 더보기</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {videos.slice(18).map((video) => (
+                <div
+                  key={video.id}
+                  className="relative group cursor-pointer"
+                  onClick={() => setSelectedVideo(video)}
+                >
+                  <div className="aspect-video rounded-lg overflow-hidden">
+                    <img
+                      src={video.thumbnail}
+                      alt={video.title}
+                      className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-300"
+                    />
+                  </div>
+                  <div className="mt-3">
+                    <h3 className="text-white text-lg font-medium truncate">{video.title}</h3>
+                    <p className="text-gray-400 text-sm mt-1">{video.genre.join(', ')}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
         {loading && (
           <div className="flex justify-center py-8">
