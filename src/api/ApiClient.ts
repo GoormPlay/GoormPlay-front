@@ -19,7 +19,7 @@ export class ApiClient {
   private constructor() {
     this.axiosInstance = axios.create({
       baseURL: GATEWAY_URL,
-      withCredentials: true,
+      withCredentials: false,
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
