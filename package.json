@@ -34,7 +34,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "build-and-copy": "react-scripts build && rm -rf ../GoormPlay/apigateway-service/src/main/resources/static/* && cp -r build/static/* ../GoormPlay/apigateway-service/src/main/resources/static/ && cp build/index.html ../GoormPlay/apigateway-service/src/main/resources/static/"
+    "build-and-copy": "react-scripts build && rm -rf ../GoormPlay/apigateway-service/src/main/resources/static/* && cp -r build/* ../GoormPlay/apigateway-service/src/main/resources/static/"
   },
   "eslintConfig": {
     "extends": [
