@@ -15,7 +15,7 @@ jobs:
 
       - name: Inject .env.production
         run: |
-          echo "REACT_APP_API_URL=${{ secrets.REACT_APP_API_URL }}" > .env.production
+          echo "REACT_APP_API_GATEWAY_URL=${{ secrets.REACT_APP_API_GATEWAY_URL }}" > .env.production
           cp .env.production .env
           
       - name: Install and Build
