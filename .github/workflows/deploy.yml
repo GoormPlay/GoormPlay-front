@@ -27,7 +27,7 @@ jobs:
       - name: Deploy to S3
         uses: jakejarvis/s3-sync-action@master
         with:
-          args: --delete --cache-control "no-cache, no-store, must-revalidate"
+          args: "--delete --cache-control 'no-cache, no-store, must-revalidate'"
         env:
           AWS_S3_BUCKET: goorm-front
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
