@@ -1,7 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { VideoEvent, VideoEventType } from '../types/video';
-import { Video, ContentDetailResponse, Review } from '../api/types';
+import { ContentDetailResponse, Review } from '../api/types';
 import { videoService } from '../api/services/VideoService';
 import { userInteractionService } from '../api/services/UserInteractionService';
 import { reviewService } from '../api/services/ReviewService';
@@ -15,7 +14,7 @@ interface VideoDetailModalProps {
 
 const VideoDetailModal: React.FC<VideoDetailModalProps> = ({ videoId, onClose }) => {
   const playerRef = useRef<YT.Player | null>(null);
-  const [isPlayerReady, setIsPlayerReady] = useState(false);
+  const [, setIsPlayerReady] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const [contentDetail, setContentDetail] = useState<ContentDetailResponse | null>(null);
   const [isLiked, setIsLiked] = useState(false);
@@ -41,6 +40,25 @@ const VideoDetailModal: React.FC<VideoDetailModalProps> = ({ videoId, onClose })
 
     loadVideoDetail();
   }, [videoId, onClose]);
+
+  const handlePlayerStateChange = useCallback((state: number) => {
+    if (!playerRef.current || !contentDetail?.content) return;
+  
+    switch (state) {
+      case window.YT.PlayerState.PLAYING:
+        trackEvent('play');
+        intervalRef.current = setInterval(() => trackEvent('time'), 5000);
+        break;
+      case window.YT.PlayerState.PAUSED:
+        trackEvent('pause');
+        if (intervalRef.current) clearInterval(intervalRef.current);
+        break;
+      case window.YT.PlayerState.ENDED:
+        trackEvent('end');
+        if (intervalRef.current) clearInterval(intervalRef.current);
+        break;
+    }
+  }, [contentDetail]);
 
   useEffect(() => {
     if (!contentDetail?.content) return;
@@ -78,26 +96,8 @@ const VideoDetailModal: React.FC<VideoDetailModalProps> = ({ videoId, onClose })
         clearInterval(intervalRef.current);
       }
     };
-  }, [contentDetail]);
+  }, [contentDetail, handlePlayerStateChange]);
 
-  const handlePlayerStateChange = (state: number) => {
-    if (!playerRef.current || !contentDetail?.content) return;
-
-    switch (state) {
-      case window.YT.PlayerState.PLAYING:
-        trackEvent('play');
-        intervalRef.current = setInterval(() => trackEvent('time'), 5000);
-        break;
-      case window.YT.PlayerState.PAUSED:
-        trackEvent('pause');
-        if (intervalRef.current) clearInterval(intervalRef.current);
-        break;
-      case window.YT.PlayerState.ENDED:
-        trackEvent('end');
-        if (intervalRef.current) clearInterval(intervalRef.current);
-        break;
-    }
-  };
 
   const trackEvent = async (eventType: VideoEventType) => {
     if (!contentDetail?.content || !playerRef.current) return;
