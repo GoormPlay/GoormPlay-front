@@ -4,22 +4,20 @@ import { userInteractionService } from '../api/services/UserInteractionService';
 import { VideoEventType } from '../api/types';
 
 const WatchPage: React.FC = () => {
-    const { contentId } = useParams<{ contentId: string }>();
-    const [searchParams] = useSearchParams();
-    const videoId = searchParams.get('videoId');
+    const { videoId } = useParams<{ videoId: string }>();
     const playerRef = useRef<any>(null);
 
     const sendEvent = useCallback((eventType: VideoEventType, currentTime: number, duration: number) => {
-        if (!contentId) return;
+        if (!videoId) return;
         const watchProgress = (currentTime / duration) * 100;
-        userInteractionService.trackEvent(contentId, eventType, new Date().toISOString(), watchProgress);
-    }, [contentId]);
+        userInteractionService.trackEvent(videoId, eventType, new Date().toISOString(), watchProgress);
+    }, [videoId]);
 
     useEffect(() => {
-        if (!contentId || !videoId) return;
+        if (!videoId) return;
 
         function createPlayer() {
-            if (!videoId || !contentId) return;
+            if (!videoId) return;
             
             playerRef.current = new window.YT.Player('youtube-player', {
                 videoId,
@@ -32,7 +30,7 @@ const WatchPage: React.FC = () => {
                 },
                 events: {
                     onStateChange: (event: any) => {
-                        if (!contentId) return;
+                        if (!videoId) return;
                         const state = event.data;
                         const currentTime = event.target.getCurrentTime();
                         const duration = event.target.getDuration();
@@ -62,14 +60,14 @@ const WatchPage: React.FC = () => {
         }
 
         return () => {
-            if (playerRef.current && contentId) {
+            if (playerRef.current && videoId) {
                 const currentTime = playerRef.current.getCurrentTime();
                 const duration = playerRef.current.getDuration();
                 sendEvent('play_exit', currentTime, duration);
                 playerRef.current.destroy();
             }
         };
-    }, [contentId, videoId, sendEvent]);
+    }, [videoId, sendEvent]);
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-black">

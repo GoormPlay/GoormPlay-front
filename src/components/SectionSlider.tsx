@@ -4,14 +4,14 @@ import { Navigation, Autoplay } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import VideoCard from './VideoCard';
-import { Video } from '../api/types';
+import { VideoPreview } from '../types/video';
 import { userInteractionService } from '../api/services/UserInteractionService';
 
 interface SectionSliderProps {
   title: string;
-  videos: Video[];
+  videos: VideoPreview[];
   showRank?: boolean;
-  onCardClick: (video: Video) => void;
+  onCardClick: (video: VideoPreview) => void;
   sectionType?: 'trending' | 'latest' | 'recommend';
 }
 
@@ -24,12 +24,12 @@ const SectionSlider: React.FC<SectionSliderProps> = ({
 }) => {
   const sliderId = `slider-${sectionType || 'default'}`;
 
-  const handleCardClick = async (video: Video) => {
+  const handleCardClick = async (video: VideoPreview) => {
     const token = localStorage.getItem('accessToken');
     if (token) {
       try {
         await userInteractionService.trackContentClick(
-          video.id,
+          video.videoId,
           sectionType === 'trending',
           sectionType === 'latest',
           sectionType === 'recommend',
@@ -59,7 +59,7 @@ const SectionSlider: React.FC<SectionSliderProps> = ({
           className="relative"
         >
           {videos.map((video, idx) => (
-            <SwiperSlide key={video.id} style={{ width: 220 }}>
+            <SwiperSlide key={video.videoId} style={{ width: 220 }}>
               <VideoCard
                 video={video}
                 onClick={() => handleCardClick(video)}

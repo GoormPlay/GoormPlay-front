@@ -1,10 +1,10 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Video } from '../types/video';
+import { VideoPreview } from '../types/video';
 
 interface VideoCardProps {
-  video: Video;
-  onClick: (video: Video) => void;
+  video: VideoPreview;
+  onClick: (video: VideoPreview) => void;
   rank?: number;
   badge?: string;
 }
