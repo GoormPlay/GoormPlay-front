@@ -162,6 +162,7 @@ export interface SignInRequestDto {
 export interface SignInResponseDto {
   accessToken: string;
   username: string;
+  userId: string;
 }
 
 export interface MemberProfileDto {
@@ -237,7 +238,7 @@ export const API_ENDPOINTS = {
     service: 'content' as const,
   },
   TRACK_EVENT: {
-    path: '/ui/play/{contentId}',
+    path: '/ui/play/{videoId}',
     isPublic: false,
     isAuth: false,
     service: 'videoEvent' as const,
