@@ -13,6 +13,7 @@ class UserService {
       if (response.data.data) {
           localStorage.setItem('accessToken', response.data.data.accessToken);
           localStorage.setItem('username', response.data.data.username);
+          localStorage.setItem('userId', response.data.data.userId);
           this.apiClient.setAuthToken(response.data.data.accessToken);
       }
         return response;

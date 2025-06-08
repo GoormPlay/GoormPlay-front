@@ -162,6 +162,7 @@ export interface SignInRequestDto {
 export interface SignInResponseDto {
   accessToken: string;
   username: string;
+  userId: string;
 }
 
 export interface MemberProfileDto {
