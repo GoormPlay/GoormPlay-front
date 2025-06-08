@@ -31,10 +31,10 @@ export interface ApiResponse<T> {
 // 비디오 관련
 export interface Video {
   id: string;
+  videoId: string;
   title: string;
   kind: string;
   genre: string[];
-  videoId: string;
   thumbnail: string;
   synopsis: string;
   trending?: boolean;
@@ -66,7 +66,6 @@ export interface Review {
   rating: number;
   comment: string;
   createdAt: string;
-  isAuthor: boolean;
 }
 
 export interface ContentDetailResponse {
@@ -78,11 +77,10 @@ export interface ContentDetailResponse {
 
 // 비디오 관련
 export interface VideoCard {
-  id: string;
+  videoId: string;
   kind: string;
   genre: string[];
   title: string;
-  videoId: string;
   thumbnail: string;
   trending?: boolean;
   latest?: boolean;
@@ -90,12 +88,11 @@ export interface VideoCard {
 }
 
 export interface ContentCard {
-  id: string;
+  videoId: string;
   title: string;
   kind: string;
   genre: string[];
   thumbnail: string;
-  videoId: string;
 }
 
 export type VideoEventType = 'play_start' | 'play_pause' | 'play_exit' | 'play_end';
@@ -179,12 +176,12 @@ export interface MemberProfileDto {
 }
 
 export interface InteractionRequestDto {
-  contentId: string;
+  videoId: string;
   timestamp: string;
 }
 
 export interface ContentClickEventDto {
-  contentId: string;
+  videoId: string;
   timestamp: string;
   trending: boolean;
   latest: boolean;
@@ -202,10 +199,10 @@ export interface PaginatedResponse<T> {
 }
 
 export interface VideoEventDto {
-    contentId: string;
-    timestamp: string;
-    eventType: VideoEventType;
-    watchProgress: number;  // double 타입으로 백엔드에서 받을 것을 권장
+  videoId: string;
+  timestamp: string;
+  eventType: VideoEventType;
+  watchProgress: number;
 }
 
 export const API_ENDPOINTS = {

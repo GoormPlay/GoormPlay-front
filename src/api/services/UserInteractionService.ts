@@ -10,7 +10,7 @@ class UserInteractionService {
 
     async updateLike(videoId: string) {
         const requestDto: InteractionRequestDto = {
-            contentId: videoId,
+            videoId,
             timestamp: new Date().toISOString()
         };
         return this.apiClient.post<void>('LIKE', requestDto);
@@ -24,7 +24,7 @@ class UserInteractionService {
         genre: string[]
     ) {
         const requestDto: ContentClickEventDto = {
-            contentId: videoId,
+            videoId,
             timestamp: new Date().toISOString(),
             trending: isTrending,
             latest: isLatest,
@@ -34,18 +34,18 @@ class UserInteractionService {
         return this.apiClient.post<void>('CONTENT_CLICK', requestDto);
     }
 
-    async trackEvent(contentId: string, eventType: VideoEventType, timestamp: string, watchProgress: number) {
+    async trackEvent(videoId: string, eventType: VideoEventType, timestamp: string, watchProgress: number) {
         const token = localStorage.getItem('accessToken');
         if (!token) return;
 
         try {
             const requestDto: VideoEventDto = {
-                contentId,
+                videoId,
                 timestamp,
                 eventType,
                 watchProgress
             };
-            await this.apiClient.post<void>('TRACK_EVENT', requestDto, { params: { contentId } });
+            await this.apiClient.post<void>('TRACK_EVENT', requestDto, { params: { videoId } });
         } catch (error) {
             console.error('Error tracking event:', error);
         }

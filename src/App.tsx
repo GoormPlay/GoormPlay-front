@@ -3,7 +3,7 @@ import HeroBanner from './components/HeroBanner';
 import SectionSlider from './components/SectionSlider';
 import VideoDetailModal from './components/VideoDetailModal';
 import { videoService } from './api/services/VideoService'; 
-import { Video } from './types/video';
+import { VideoPreview } from './types/video';
 import NavBar from './components/NavBar';
 import { Route, Routes, useNavigate } from 'react-router-dom';
 import WatchPage from './components/WatchPage';
@@ -62,11 +62,17 @@ function FloatingMenu() {
   );
 }
 
-function MainPage({ videos: initialVideos, setSelectedVideo }: { videos: Video[], setSelectedVideo: (v: Video) => void }) {
-  const [videos, setVideos] = useState<Video[]>(initialVideos);
+function MainPage({ videos: initialVideos, setSelectedVideo }: { videos: VideoPreview[], setSelectedVideo: (v: VideoPreview) => void }) {
+  const [videos, setVideos] = useState<VideoPreview[]>(initialVideos);
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+  const [selectedVideoId, setSelectedVideoId] = useState<string | null>(null);
+
+  const handleVideoSelect = (video: VideoPreview) => {
+    setSelectedVideoId(video.videoId);
+    setSelectedVideo(video);
+  };
 
   const loadMoreVideos = useCallback(async () => {
     if (loading || !hasMore) return;
@@ -107,28 +113,28 @@ function MainPage({ videos: initialVideos, setSelectedVideo }: { videos: Video[]
       <NavBar />
       <div className="pt-16">
         {videos[0] && (
-          <HeroBanner video={videos[0]} onPlay={() => setSelectedVideo(videos[0])} />
+          <HeroBanner video={videos[0]} onPlay={() => handleVideoSelect(videos[0])} />
         )}
         <div className="container mx-auto px-4">
           <SectionSlider
             title="오늘 대한민국의 TOP 10 시리즈"
             videos={videos.slice(12, 18)}
             showRank={false}
-            onCardClick={setSelectedVideo}
+            onCardClick={handleVideoSelect}
             sectionType="trending"
           />
           <SectionSlider
             title="회원님을 위해 엄선한 오늘의 콘텐츠"
             videos={videos.slice(6, 12)}
             showRank={false}
-            onCardClick={setSelectedVideo}
+            onCardClick={handleVideoSelect}
             sectionType="recommend"
           />
           <SectionSlider
             title="GoormPlay에 새로 올라온 콘텐츠"
             videos={videos.slice(0, 6)}
             showRank={false}
-            onCardClick={setSelectedVideo}
+            onCardClick={handleVideoSelect}
             sectionType="latest"
           />
           
@@ -138,13 +144,13 @@ function MainPage({ videos: initialVideos, setSelectedVideo }: { videos: Video[]
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {videos.slice(18).map((video) => (
                 <div
-                  key={video.id}
+                  key={video.videoId}
                   className="relative group cursor-pointer"
-                  onClick={() => setSelectedVideo(video)}
+                  onClick={() => handleVideoSelect(video)}
                 >
                   <div className="aspect-video rounded-lg overflow-hidden">
                     <img
-                      src={video.thumbnail}
+                      src={`https://img.youtube.com/vi/${video.videoId}/sddefault.jpg`}
                       alt={video.title}
                       className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-300"
                     />
@@ -173,6 +179,10 @@ function MainPage({ videos: initialVideos, setSelectedVideo }: { videos: Video[]
           <img src="/banner-bottom.png" alt="광고" className="rounded-lg" />
         </div>
       </div>
+      <VideoDetailModal
+        videoId={selectedVideoId}
+        onClose={() => setSelectedVideoId(null)}
+      />
     </>
   );
 }
@@ -187,8 +197,8 @@ function AdLayout({ children }: { children: React.ReactNode }) {
 }
 
 function App() {
-  const [videos, setVideos] = useState<Video[]>([]);
-  const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
+  const [videos, setVideos] = useState<VideoPreview[]>([]);
+  const [selectedVideo, setSelectedVideo] = useState<VideoPreview | null>(null);
 
   useEffect(() => {
     videoService.getLatest().then(response => setVideos(response.contents));
@@ -202,15 +212,10 @@ function App() {
           element={
             <>
               <MainPage videos={videos} setSelectedVideo={setSelectedVideo} />
-              <VideoDetailModal
-                open={!!selectedVideo}
-                video={selectedVideo}
-                onClose={() => setSelectedVideo(null)}
-              />
             </>
           }
         />
-        <Route path="/watch/:contentId" element={<WatchPage />} />
+        <Route path="/watch/:videoId" element={<WatchPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/profile" element={<ProfilePage />} />

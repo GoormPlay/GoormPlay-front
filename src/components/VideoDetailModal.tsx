@@ -1,18 +1,22 @@
-import React, {useState, useEffect} from 'react';
-import { Modal, Box, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Rating } from '@mui/material';
-import { Video, Review, ContentDetailResponse, CreateReviewRequest, UpdateReviewRequest } from '../api/types';
-import { useNavigate } from 'react-router-dom';
-import { userInteractionService } from '../api/services/UserInteractionService';
+import React, { useEffect, useRef, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { VideoEvent, VideoEventType } from '../types/video';
+import { Video, ContentDetailResponse, Review } from '../api/types';
 import { videoService } from '../api/services/VideoService';
+import { userInteractionService } from '../api/services/UserInteractionService';
 import { reviewService } from '../api/services/ReviewService';
+import { useNavigate } from 'react-router-dom';
+import { Modal, Box, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Rating } from '@mui/material';
 
 interface VideoDetailModalProps {
-  open: boolean;
-  video: Video | null;
+  videoId: string | null;
   onClose: () => void;
-};
+}
 
-const VideoDetailModal: React.FC<VideoDetailModalProps> = ({ open, video, onClose }) => {
+const VideoDetailModal: React.FC<VideoDetailModalProps> = ({ videoId, onClose }) => {
+  const playerRef = useRef<YT.Player | null>(null);
+  const [isPlayerReady, setIsPlayerReady] = useState(false);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const [contentDetail, setContentDetail] = useState<ContentDetailResponse | null>(null);
   const [isLiked, setIsLiked] = useState(false);
   const [isReviewDialogOpen, setIsReviewDialogOpen] = useState(false);
@@ -22,23 +26,95 @@ const VideoDetailModal: React.FC<VideoDetailModalProps> = ({ open, video, onClos
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (video?.id) {
-      videoService.getContentDetail(video.id)
-        .then(response => {
-          setContentDetail(response);
-          setIsLiked(response.isLiked);
-        })
-        .catch(error => {
-          console.error('상세 정보 조회 실패:', error);
-          setContentDetail({
-            content: video,
-            isLiked: false,
-            reviews: [],
-            averageRating: 0
-          });
-        });
+    if (!videoId) return;
+
+    const loadVideoDetail = async () => {
+      try {
+        const response = await videoService.getContentDetail(videoId);
+        setContentDetail(response);
+        setIsLiked(response.isLiked);
+      } catch (error) {
+        console.error('Error loading video detail:', error);
+        onClose();
+      }
+    };
+
+    loadVideoDetail();
+  }, [videoId, onClose]);
+
+  useEffect(() => {
+    if (!contentDetail?.content) return;
+
+    const loadYouTubeAPI = () => {
+      const tag = document.createElement('script');
+      tag.src = 'https://www.youtube.com/iframe_api';
+      const firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
+    };
+
+    if (!window.YT) {
+      loadYouTubeAPI();
     }
-  }, [video]);
+
+    window.onYouTubeIframeAPIReady = () => {
+      playerRef.current = new window.YT.Player('youtube-player', {
+        height: '100%',
+        width: '100%',
+        videoId: contentDetail.content.videoId,
+        playerVars: {
+          autoplay: 1,
+          modestbranding: 1,
+          rel: 0,
+        },
+        events: {
+          onReady: () => setIsPlayerReady(true),
+          onStateChange: (event: { data: number }) => handlePlayerStateChange(event.data),
+        },
+      });
+    };
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, [contentDetail]);
+
+  const handlePlayerStateChange = (state: number) => {
+    if (!playerRef.current || !contentDetail?.content) return;
+
+    switch (state) {
+      case window.YT.PlayerState.PLAYING:
+        trackEvent('play');
+        intervalRef.current = setInterval(() => trackEvent('time'), 5000);
+        break;
+      case window.YT.PlayerState.PAUSED:
+        trackEvent('pause');
+        if (intervalRef.current) clearInterval(intervalRef.current);
+        break;
+      case window.YT.PlayerState.ENDED:
+        trackEvent('end');
+        if (intervalRef.current) clearInterval(intervalRef.current);
+        break;
+    }
+  };
+
+  const trackEvent = async (eventType: VideoEventType) => {
+    if (!contentDetail?.content || !playerRef.current) return;
+
+    const event: VideoEvent = {
+      videoId: contentDetail.content.videoId,
+      eventType,
+      timestamp: new Date().toISOString(),
+      currentTime: playerRef.current.getCurrentTime(),
+    };
+
+    try {
+      await videoService.trackEvent(event);
+    } catch (error) {
+      console.error('Error tracking event:', error);
+    }
+  };
 
   const handleLikeClick = async () => {
     const token = localStorage.getItem('accessToken');
@@ -51,7 +127,7 @@ const VideoDetailModal: React.FC<VideoDetailModalProps> = ({ open, video, onClos
     }
 
     try {
-      await userInteractionService.updateLike(video!.id);
+      await userInteractionService.updateLike(videoId!);
       setIsLiked(!isLiked);
     } catch (error) {
       console.error('좋아요 업데이트 실패:', error);
@@ -89,9 +165,8 @@ const VideoDetailModal: React.FC<VideoDetailModalProps> = ({ open, video, onClos
     }
 
     try {
-      await reviewService.deleteReview(video!.id);
-      // 리뷰 삭제 후 상세 정보 새로고침
-      const response = await videoService.getContentDetail(video!.id);
+      await reviewService.deleteReview(videoId!);
+      const response = await videoService.getContentDetail(videoId!);
       setContentDetail(response);
     } catch (error) {
       console.error('리뷰 삭제 실패:', error);
@@ -107,24 +182,19 @@ const VideoDetailModal: React.FC<VideoDetailModalProps> = ({ open, video, onClos
 
     try {
       if (editingReview) {
-        // 리뷰 수정
-        const request: UpdateReviewRequest = {
+        await reviewService.updateReview(videoId!, {
           id: editingReview.id!,
           comment: reviewText,
           rating: reviewRating
-        };
-        await reviewService.updateReview(video!.id, request);
+        });
       } else {
-        // 새 리뷰 작성
-        const request: CreateReviewRequest = {
+        await reviewService.createReview(videoId!, {
           comment: reviewText,
           rating: reviewRating
-        };
-        await reviewService.createReview(video!.id, request);
+        });
       }
 
-      // 리뷰 작성/수정 후 상세 정보 새로고침
-      const response = await videoService.getContentDetail(video!.id);
+      const response = await videoService.getContentDetail(videoId!);
       setContentDetail(response);
       setIsReviewDialogOpen(false);
       setEditingReview(null);
@@ -136,13 +206,22 @@ const VideoDetailModal: React.FC<VideoDetailModalProps> = ({ open, video, onClos
     }
   };
 
-  if (!open || !video || !video.videoId || !contentDetail) return null;
+  const handleClose = () => {
+    if (playerRef.current) {
+      trackEvent('exit');
+      playerRef.current.destroy();
+    }
+    onClose();
+  };
 
+  if (!contentDetail?.content) return null;
+
+  const video = contentDetail.content;
   const previewUrl = `https://www.youtube.com/embed/${video.videoId}?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&start=0&end=10`;
 
   return (
     <>
-      <Modal open={open} onClose={onClose}>
+      <Modal open={!!videoId} onClose={handleClose}>
         <Box
           sx={{
             position: 'absolute',
@@ -205,7 +284,7 @@ const VideoDetailModal: React.FC<VideoDetailModalProps> = ({ open, video, onClos
               <p className="text-gray-300 mb-6">{video.synopsis}</p>
               <button 
                 className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg text-xl mb-6"
-                onClick={() => navigate(`/watch/${video.id}?videoId=${video.videoId}`)}
+                onClick={() => navigate(`/watch/${video.videoId}`)}
               >
                 재생하기
               </button>
@@ -243,34 +322,39 @@ const VideoDetailModal: React.FC<VideoDetailModalProps> = ({ open, video, onClos
               <div className="flex-1 overflow-y-auto">
                 <h4 className="text-lg font-bold mb-2">베스트 리뷰</h4>
                 {contentDetail.reviews.length > 0 ? (
-                  contentDetail.reviews.map((review) => (
-                    <div key={review.id} className="mb-4 pb-4 border-b border-[#222]">
-                      <div className="flex items-center justify-between mb-1">
-                        <div className="flex items-center gap-2">
-                          <span className="font-bold">{review.username}</span>
-                          <span className="text-yellow-400">{'★'.repeat(review.rating)}</span>
-                          <span className="text-gray-400 text-xs">{review.createdAt}</span>
-                        </div>
-                        {review.isAuthor && (
-                          <div className="flex gap-2">
-                            <button 
-                              onClick={() => handleEditReview(review)}
-                              className="text-blue-400 hover:text-blue-300 text-sm"
-                            >
-                              수정
-                            </button>
-                            <button 
-                              onClick={() => handleDeleteReview(review)}
-                              className="text-red-400 hover:text-red-300 text-sm"
-                            >
-                              삭제
-                            </button>
+                  contentDetail.reviews.map((review) => {
+                    const currentUserId = localStorage.getItem('userId');
+                    const isAuthor = currentUserId === review.userId;
+                    
+                    return (
+                      <div key={review.id} className="mb-4 pb-4 border-b border-[#222]">
+                        <div className="flex items-center justify-between mb-1">
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold">{review.username}</span>
+                            <span className="text-yellow-400">{'★'.repeat(review.rating)}</span>
+                            <span className="text-gray-400 text-xs">{review.createdAt}</span>
                           </div>
-                        )}
+                          {isAuthor && (
+                            <div className="flex gap-2">
+                              <button 
+                                onClick={() => handleEditReview(review)}
+                                className="text-blue-400 hover:text-blue-300 text-sm"
+                              >
+                                수정
+                              </button>
+                              <button 
+                                onClick={() => handleDeleteReview(review)}
+                                className="text-red-400 hover:text-red-300 text-sm"
+                              >
+                                삭제
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                        <div className="text-gray-200">{review.comment}</div>
                       </div>
-                      <div className="text-gray-200">{review.comment}</div>
-                    </div>
-                  ))
+                    );
+                  })
                 ) : (
                   <div className="text-center py-8 text-gray-400">
                     <p className="text-lg mb-2">아직 리뷰가 없습니다</p>
@@ -376,4 +460,4 @@ const VideoDetailModal: React.FC<VideoDetailModalProps> = ({ open, video, onClos
   );
 };
 
-export default VideoDetailModal; 
+export default VideoDetailModal;
