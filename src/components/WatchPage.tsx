@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useCallback } from 'react';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { useParams} from 'react-router-dom';
 import { userInteractionService } from '../api/services/UserInteractionService';
 import { VideoEventType } from '../api/types';
 

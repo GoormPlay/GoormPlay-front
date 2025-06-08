@@ -198,7 +198,7 @@ function AdLayout({ children }: { children: React.ReactNode }) {
 
 function App() {
   const [videos, setVideos] = useState<VideoPreview[]>([]);
-  const [selectedVideo, setSelectedVideo] = useState<VideoPreview | null>(null);
+  const [, setSelectedVideo] = useState<VideoPreview | null>(null);
 
   useEffect(() => {
     videoService.getLatest().then(response => setVideos(response.contents));
