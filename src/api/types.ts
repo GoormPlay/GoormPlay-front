@@ -237,7 +237,7 @@ export const API_ENDPOINTS = {
     service: 'content' as const,
   },
   TRACK_EVENT: {
-    path: '/ui/play/{contentId}',
+    path: '/ui/play/{videoId}',
     isPublic: false,
     isAuth: false,
     service: 'videoEvent' as const,
