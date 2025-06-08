@@ -60,6 +60,24 @@ const VideoDetailModal: React.FC<VideoDetailModalProps> = ({ videoId, onClose })
     }
   }, [contentDetail]);
 
+  const trackEvent = useCallback(async (eventType: VideoEventType) => {
+    if (!contentDetail?.content || !playerRef.current) return;
+  
+    const event: VideoEvent = {
+      videoId: contentDetail.content.videoId,
+      eventType,
+      timestamp: new Date().toISOString(),
+      currentTime: playerRef.current.getCurrentTime(),
+    };
+  
+    try {
+      await videoService.trackEvent(event);
+    } catch (error) {
+      console.error('Error tracking event:', error);
+    }
+  }, [contentDetail]);
+  
+
   useEffect(() => {
     if (!contentDetail?.content) return;
 
@@ -96,25 +114,8 @@ const VideoDetailModal: React.FC<VideoDetailModalProps> = ({ videoId, onClose })
         clearInterval(intervalRef.current);
       }
     };
-  }, [contentDetail, handlePlayerStateChange]);
+  }, [contentDetail, handlePlayerStateChange, trackEvent]);
 
-
-  const trackEvent = async (eventType: VideoEventType) => {
-    if (!contentDetail?.content || !playerRef.current) return;
-
-    const event: VideoEvent = {
-      videoId: contentDetail.content.videoId,
-      eventType,
-      timestamp: new Date().toISOString(),
-      currentTime: playerRef.current.getCurrentTime(),
-    };
-
-    try {
-      await videoService.trackEvent(event);
-    } catch (error) {
-      console.error('Error tracking event:', error);
-    }
-  };
 
   const handleLikeClick = async () => {
     const token = localStorage.getItem('accessToken');
