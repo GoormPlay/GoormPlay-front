@@ -103,11 +103,13 @@ export class ApiClient {
       let url = `${basePath}${endpoint.path}`;
       
       // path parameter 처리
-      if (customConfig.params) {
-        Object.entries(customConfig.params).forEach(([key, value]) => {
+      const params = { ...customConfig.params, ...customConfig.data };
+      if (params) {
+        Object.entries(params).forEach(([key, value]) => {
           if (url.includes(`{${key}}`)) {
             url = url.replace(`{${key}}`, value as string);
-            delete customConfig.params[key];
+            delete customConfig.params?.[key];
+            delete customConfig.data?.[key];
           }
         });
       }
