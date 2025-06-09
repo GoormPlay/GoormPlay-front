@@ -212,9 +212,9 @@ const VideoDetailModal: React.FC<VideoDetailModalProps> = ({ videoId, onClose })
                 <h4 className="text-lg font-bold mb-2">베스트 리뷰</h4>
                 {contentDetail.reviews.length > 0 ? (
                   contentDetail.reviews.map((review) => {
-                    const currentUserId = localStorage.getItem('userId');
-                    const isAuthor = currentUserId === review.userId;
-                    
+                    const currentUsername = localStorage.getItem('username');
+                    const isAuthor = currentUsername === review.username;
+
                     return (
                       <div key={review.id} className="mb-4 pb-4 border-b border-[#222]">
                         <div className="flex items-center justify-between mb-1">
