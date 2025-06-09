@@ -232,7 +232,7 @@ export const API_ENDPOINTS = {
     service: 'content' as const,
   },
   VIDEO_DETAIL: {
-    path: '/contents/{videoId}',
+    path: '/contents/detail',
     isPublic: true,
     isAuth: false,
     service: 'content' as const,
