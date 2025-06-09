@@ -91,10 +91,31 @@ export class ApiClient {
     endpointKey: ApiEndpoint,
     config: Omit<CustomRequestConfig, 'url'> = {}
   ): Promise<ApiResponse<T>> {
-    const response = await this.axiosInstance({
+    const customConfig = {
       ...config,
       endpointKey,
-    } as CustomRequestConfig);
+    } as CustomRequestConfig;
+
+    // URL 파라미터 처리
+    if (endpointKey) {
+      const endpoint = API_ENDPOINTS[endpointKey];
+      const basePath = endpoint.isPublic ? '/api/public' : '/api';
+      let url = `${basePath}${endpoint.path}`;
+      
+      // path parameter 처리
+      if (customConfig.params) {
+        Object.entries(customConfig.params).forEach(([key, value]) => {
+          if (url.includes(`{${key}}`)) {
+            url = url.replace(`{${key}}`, value as string);
+            delete customConfig.params[key];
+          }
+        });
+      }
+      
+      customConfig.url = url;
+    }
+
+    const response = await this.axiosInstance(customConfig);
 
     return {
       data: response.data,
