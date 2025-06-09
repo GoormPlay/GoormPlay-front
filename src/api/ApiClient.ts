@@ -140,8 +140,8 @@ export class ApiClient {
     };
   }
 
-  public async get<T>(endpoint: ApiEndpoint, params?: Record<string, string>): Promise<ApiResponse<T>> {
-    return this.request<T>(endpoint, { method: 'GET', params });
+  public async get<T>(endpoint: ApiEndpoint, data?: unknown, config?: { params?: Record<string, string> }): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, { method: 'GET', data, params: config?.params });
   }
 
   public async post<T>(endpoint: ApiEndpoint, data: unknown, config?: { params?: Record<string, string> }): Promise<ApiResponse<T>> {
