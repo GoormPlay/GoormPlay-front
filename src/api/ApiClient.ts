@@ -53,8 +53,10 @@ export class ApiClient {
           
           customConfig.url = url;
           console.log('Final Request URL:', customConfig.url);  // 실제 요청 URL 확인
+          const shouldIncludeToken = 
+  (!endpoint.isAuth && !endpoint.isPublic) || endpoint.requiresToken; 
           
-          if (!endpoint.isPublic && !endpoint.isAuth) {
+          if (shouldIncludeToken) {
             const token = localStorage.getItem('accessToken');
             if (token) {
               customConfig.headers.Authorization = `Bearer ${token}`;
