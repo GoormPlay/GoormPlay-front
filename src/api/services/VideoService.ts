@@ -207,7 +207,8 @@ class VideoService {
 
   async getContentDetail(videoId: string): Promise<ContentDetailResponse> {
     try {
-      const response = await this.apiClient.post<ContentDetailResponse>('VIDEO_DETAIL', { videoId });
+      const encodedVideoId = encodeURIComponent(videoId);
+      const response = await this.apiClient.get<ContentDetailResponse>('VIDEO_DETAIL', { videoId: encodedVideoId });
       return response.data;
     } catch (error) {
       console.error('Error fetching content detail:', error);
