@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { adService } from "../api/services/AdService";
+import { adAdminService } from "../api/services/AdAdminService";
 import { useNavigate } from "react-router-dom";
 import { Ad } from "../api/types";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, LabelList } from 'recharts';
@@ -164,13 +164,14 @@ const AdManagementPage: React.FC = () => {
     const [adOn, setAdOn] = useState(true);
     const [selectedAdSnId, setSelectedAdSnId] = useState<string>('AD001');
     const [selectedType, setSelectedType] = useState<'전체'|'A'|'B'>('전체');
+    const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
 
     useEffect(() => {
-        adService.getAds()
-            .then(response => setAds(response.data))
+        adAdminService.getAds()
+            .then(response => setAds(response))
             .catch(() => {
-                setAds(dummyAds);
+                setError('광고 목록을 불러오는데 실패했습니다.');
             });
     }, []);
 

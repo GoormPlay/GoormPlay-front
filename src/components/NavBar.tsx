@@ -53,7 +53,7 @@ const NavBar = () => {
     <nav className="w-full h-16 flex items-center justify-between px-8 bg-black/95 fixed top-0 left-0 z-50">
       {/* 왼쪽: 로고 + 메뉴 */}
       <div className="flex items-center gap-8">
-        <img src="/logo-coupangplay.png" alt="logo" className="h-8" />
+        <img src="/main-logo.png" alt="logo" className="h-8" />
         <ul className="flex gap-6 text-white font-bold text-base">
           <li className="cursor-pointer hover:text-blue-400">TV</li>
           <li className="cursor-pointer hover:text-blue-400">영화</li>

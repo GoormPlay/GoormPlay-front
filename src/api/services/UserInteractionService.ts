@@ -1,5 +1,5 @@
 import { ApiClient } from "../ApiClient";
-import { InteractionRequestDto, ContentClickEventDto, VideoEventType, VideoEventDto } from "../types";
+import { InteractionRequestDto, ContentClickEventDto, VideoEventType, VideoEventDto, AdEvent } from "../types";
 
 class UserInteractionService {
     private apiClient: ApiClient;
@@ -48,6 +48,15 @@ class UserInteractionService {
             await this.apiClient.post<void>('TRACK_EVENT', requestDto, { params: { videoId } });
         } catch (error) {
             console.error('Error tracking event:', error);
+        }
+    }
+
+    async trackAdEvent(event: AdEvent): Promise<void> {
+        try {
+            await this.apiClient.post('AD_EVENT', event);
+        } catch (error) {
+            console.error('Error tracking ad event:', error);
+            throw error;
         }
     }
 }

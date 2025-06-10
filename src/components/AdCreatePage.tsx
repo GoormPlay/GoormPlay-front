@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { adService } from '../api/services/AdService';
+import { adAdminService } from '../api/services/AdAdminService';
 import imageCompression from 'browser-image-compression';
 
 interface AdFormData {
@@ -105,7 +105,7 @@ const AdCreatePage: React.FC = () => {
         }
 
         // FormData 객체를 직접 전달
-        await adService.createAd(formDataToSend);
+        await adAdminService.createAd(formDataToSend);
         navigate('/ad-management');
       } catch (error) {
         console.error('Error submitting form:', error);

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { adService } from '../api/services/AdService';
+import { adAdminService } from '../api/services/AdAdminService';
 import { AdvertiserAccountDTO } from '../api/types';
 
 const AdBudgetPage: React.FC = () => {
@@ -11,8 +11,8 @@ const AdBudgetPage: React.FC = () => {
   // 잔액 조회
   const fetchBalance = async () => {
     try {
-      const response = await adService.checkBalance();
-      setAccount(response.data);
+      const response = await adAdminService.getAdBalance();
+      setAccount(response);
       setError(null);
     } catch (err) {
       setError('잔액 조회에 실패했습니다.');
@@ -25,22 +25,21 @@ const AdBudgetPage: React.FC = () => {
     fetchBalance();
   }, []);
 
-  const handleCharge = async () => {
-    const num = parseInt(amount.replace(/[^0-9]/g, ''));
-    if (!isNaN(num) && num > 0) {
-      setIsLoading(true);
+  const handleRecharge = async () => {
+    const num = Number(amount);
+    if (isNaN(num) || num <= 0) {
+      setError('유효한 금액을 입력해주세요.');
+      return;
+    }
+
+    try {
+      await adAdminService.rechargeAd(num);
+      await fetchBalance(); // 잔액 조회를 다시 수행
+      setAmount('');
       setError(null);
-      
-      try {
-        const response = await adService.rechargeBalance(num);
-        setAccount(response.data);
-        setAmount('');
-      } catch (err) {
-        setError('충전에 실패했습니다.');
-        console.error('Error recharging:', err);
-      } finally {
-        setIsLoading(false);
-      }
+    } catch (err) {
+      setError('충전에 실패했습니다.');
+      console.error('Error recharging:', err);
     }
   };
 
@@ -62,7 +61,7 @@ const AdBudgetPage: React.FC = () => {
             className={`bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded font-bold ${
               isLoading ? 'opacity-50 cursor-not-allowed' : ''
             }`}
-            onClick={handleCharge}
+            onClick={handleRecharge}
             disabled={isLoading}
           >
             {isLoading ? '처리중...' : '입력'}
