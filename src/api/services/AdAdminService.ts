@@ -1,5 +1,5 @@
 import { ApiClient } from '../ApiClient';
-import { Ad, AdvertiserAccountDTO, PaginatedResponse, RechargeRequestDTO } from '../types';
+import { Ad, AdvertiserAccountDTO, RechargeRequestDTO } from '../types';
 
 class AdAdminService {
   private apiClient: ApiClient;

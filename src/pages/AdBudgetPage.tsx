@@ -22,6 +22,19 @@ const AdBudgetPage: React.FC = () => {
 
   // 컴포넌트 마운트 시 잔액 조회
   useEffect(() => {
+    const fetchBalance = async () => {
+      setIsLoading(true); // 🔹 로딩 시작
+      try {
+        const response = await adAdminService.getAdBalance();
+        setAccount(response);
+        setError(null);
+      } catch (err) {
+        setError('잔액 조회에 실패했습니다.');
+        console.error('Error fetching balance:', err);
+      } finally {
+        setIsLoading(false); // 🔹 로딩 끝
+      }
+    };
     fetchBalance();
   }, []);
 
