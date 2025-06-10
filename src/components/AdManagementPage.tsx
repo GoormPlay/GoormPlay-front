@@ -164,15 +164,23 @@ const AdManagementPage: React.FC = () => {
     const [adOn, setAdOn] = useState(true);
     const [selectedAdSnId, setSelectedAdSnId] = useState<string>('AD001');
     const [selectedType, setSelectedType] = useState<'전체'|'A'|'B'>('전체');
-    const [error, setError] = useState<string | null>(null);
+    const [, setError] = useState<string | null>(null);
     const navigate = useNavigate();
 
     useEffect(() => {
-        adAdminService.getAds()
-            .then(response => setAds(response))
-            .catch(() => {
-                setError('광고 목록을 불러오는데 실패했습니다.');
-            });
+        const fetchAds = async () => {
+            try {
+              const response = await adAdminService.getAds();
+              setAds(response);
+              setError(null);
+            } catch (err) {
+              console.error("광고 목록 불러오기 실패:", err);
+              setError("광고 목록을 불러오는데 실패했습니다. 더미 데이터를 사용합니다.");
+              setAds(dummyAds); // 여기서 사용됨
+            } finally {
+            }
+          };
+          fetchAds();
     }, []);
 
     // 선택된 adSnId의 광고들
