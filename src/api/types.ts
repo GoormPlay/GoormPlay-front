@@ -206,6 +206,23 @@ export interface VideoEventDto {
   watchProgress: number;
 }
 
+export interface AdEvent {
+  userId: string;
+  adId: string;
+  adType: string;
+  eventType: 'ad_impression' | 'ad_click';
+  timestamp: string;
+  page: string;
+}
+
+export interface BannerAd {
+  id: string;
+  adType: string;
+  title: string;
+  thumbnailUrl: string;
+  link: string;
+}
+
 export const API_ENDPOINTS = {
   VIDEOS: {
     path: '/contents/latest',
@@ -361,6 +378,20 @@ export const API_ENDPOINTS = {
     isAuth: false,
     requiresToken: true, 
     service: 'review' as const,
+  },
+  BANNER_AD: {
+    path: '/ads/banner',
+    isPublic: true,
+    isAuth: false,
+    requiresToken: false,
+    service: 'ad' as const,
+  },
+  AD_EVENT: {
+    path: '/ui/event/ad',
+    isPublic: false,
+    isAuth: false,
+    requiresToken: true,
+    service: 'interaction' as const,
   },
 } as const;
 
