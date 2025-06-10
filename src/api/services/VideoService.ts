@@ -207,8 +207,11 @@ class VideoService {
 
   async getContentDetail(videoId: string): Promise<ContentDetailResponse> {
     try {
-      const encodedVideoId = encodeURIComponent(videoId);
-      const response = await this.apiClient.get<ContentDetailResponse>('VIDEO_DETAIL', { videoId: encodedVideoId });
+      const response = await this.apiClient.get<ContentDetailResponse>('VIDEO_DETAIL', 
+        null,  // data는 null
+        { params: { videoId } }  // query parameter로 전달
+
+      );
       return response.data;
     } catch (error) {
       console.error('Error fetching content detail:', error);
