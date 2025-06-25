@@ -40,9 +40,9 @@ const VideoDetailModal: React.FC<VideoDetailModalProps> = ({ videoId, onClose })
     };
 
     loadVideoDetail();
-    // 추천 비디오 불러오기
-    videoService.getLatest(0).then(res => {
-      setRecommendVideos(res.contents.slice(18, 24));
+    // 추천 비디오 불러오기 (18~24번째)
+    videoService.getLatest(3, 6).then(res => {
+      setRecommendVideos(res.contents);
     });
     // Re-scroll to top when videoId changes
     const box = document.querySelector('.MuiBox-root');
