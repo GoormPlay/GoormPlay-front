@@ -144,11 +144,10 @@ class VideoService {
     }
   }
 
-  async getLatest(page: number = 0): Promise<PaginatedResponse<VideoPreview>> {
+  async getLatest(page: number = 0, size: number = 10): Promise<PaginatedResponse<VideoPreview>> {
     try {
-      const response = await this.apiClient.get<PaginatedResponse<Video>>('LATEST', { page: page.toString() });
+      const response = await this.apiClient.get<PaginatedResponse<Video>>('LATEST', { page: page.toString(), size: size.toString() });
       const previews: VideoPreview[] = response.data.contents.map(video => ({
-  
         title: video.title,
         genre: video.genre,
         videoId: video.videoId
@@ -160,7 +159,6 @@ class VideoService {
     } catch (error) {
       console.error('Error fetching videos:', error);
       const previews: VideoPreview[] = dummyVideos.map(video => ({
-
         title: video.title,
         genre: video.genre,
         videoId: video.videoId
