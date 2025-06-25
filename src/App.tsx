@@ -108,11 +108,6 @@ function MainPage({ videos: initialVideos, setSelectedVideo }: { videos: VideoPr
     setVideos(initialVideos);
   }, [initialVideos]);
 
-  const handleModalVideoSelect = (videoId: string) => {
-    // To-Do: fetch video preview if not available
-    setSelectedVideoId(videoId);
-  };
-
   return (
     <>
       <NavBar />
