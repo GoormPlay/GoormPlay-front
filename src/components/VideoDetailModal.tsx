@@ -6,59 +6,14 @@ import { reviewService } from '../api/services/ReviewService';
 import { useNavigate } from 'react-router-dom';
 import { Modal, Box, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Rating } from '@mui/material';
 import { VideoPreview } from '../types/video';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
-import VideoCard from './VideoCard';
+import SectionSlider from './SectionSlider';
 
 interface VideoDetailModalProps {
   videoId: string | null;
   onClose: () => void;
 }
-
-const RecommendedVideos = () => {
-  const [videos, setVideos] = useState<VideoPreview[]>([]);
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const fetchVideos = async () => {
-      try {
-        const response = await videoService.getLatest(0);
-        setVideos(response.contents.slice(18, 24));
-      } catch (error) {
-        console.error("Error fetching recommended videos:", error);
-      }
-    };
-    fetchVideos();
-  }, []);
-  
-  const handleCardClick = (video: VideoPreview) => {
-    navigate(`/watch/${video.videoId}`);
-  };
-
-  return (
-    <div className="mt-8">
-      <h3 className="text-xl font-bold text-white mb-4">함께 시청할 만한 콘텐츠</h3>
-      <Swiper
-          spaceBetween={16}
-          slidesPerView="auto"
-          navigation
-          modules={[Navigation]}
-          className="relative"
-        >
-          {videos.map((video) => (
-            <SwiperSlide key={video.videoId} style={{ width: 220 }}>
-              <VideoCard
-                video={video}
-                onClick={() => handleCardClick(video)}
-              />
-            </SwiperSlide>
-          ))}
-        </Swiper>
-    </div>
-  );
-};
 
 const VideoDetailModal: React.FC<VideoDetailModalProps> = ({ videoId, onClose }) => {
   const [contentDetail, setContentDetail] = useState<ContentDetailResponse | null>(null);
@@ -67,6 +22,7 @@ const VideoDetailModal: React.FC<VideoDetailModalProps> = ({ videoId, onClose })
   const [editingReview, setEditingReview] = useState<Review | null>(null);
   const [reviewText, setReviewText] = useState('');
   const [reviewRating, setReviewRating] = useState<number>(0);
+  const [recommendVideos, setRecommendVideos] = useState<VideoPreview[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -84,6 +40,10 @@ const VideoDetailModal: React.FC<VideoDetailModalProps> = ({ videoId, onClose })
     };
 
     loadVideoDetail();
+    // 추천 비디오 불러오기
+    videoService.getLatest(0).then(res => {
+      setRecommendVideos(res.contents.slice(18, 24));
+    });
     // Re-scroll to top when videoId changes
     const box = document.querySelector('.MuiBox-root');
     if (box) {
@@ -245,7 +205,13 @@ const VideoDetailModal: React.FC<VideoDetailModalProps> = ({ videoId, onClose })
               >
                 재생하기
               </button>
-              <RecommendedVideos />
+              <SectionSlider
+                title="함께 시청할 만한 콘텐츠"
+                videos={recommendVideos}
+                showRank={false}
+                onCardClick={(video) => navigate(`/watch/${video.videoId}`)}
+                sectionType="recommend"
+              />
             </div>
 
             {/* 오른쪽: 리뷰/평점 */}
