@@ -205,13 +205,15 @@ const VideoDetailModal: React.FC<VideoDetailModalProps> = ({ videoId, onClose })
               >
                 재생하기
               </button>
-              <SectionSlider
-                title="함께 시청할 만한 콘텐츠"
-                videos={recommendVideos}
-                showRank={false}
-                onCardClick={(video) => navigate(`/watch/${video.videoId}`)}
-                sectionType="recommend"
-              />
+              {recommendVideos.length > 0 && (
+  <SectionSlider
+    title="함께 시청할 만한 콘텐츠"
+    videos={recommendVideos}
+    showRank={false}
+    onCardClick={(video) => navigate(`/watch/${video.videoId}`)}
+    sectionType="recommend"
+  />
+)}
             </div>
 
             {/* 오른쪽: 리뷰/평점 */}
